@@ -69,8 +69,6 @@ contract Voting {
                 return int(i);
             }
         }
-
-        // 検索して見つからなかった場合は-1を返す
         return -1;
     }
 
@@ -175,28 +173,46 @@ contract Voting {
         str = string(bstr);
     }
 
-    /* @dev 優勝者を返す
-    function getWinner() public view returns (string memory winnerName) {
-        uint[] memory medians = new uint[](candidates.length);
+    /// @dev 全体の結果を見る
+    function getResults() public view returns (string[] memory names, uint[] memory medians, uint[] memory ranks) {
+        uint[] memory tempMedians = new uint[](candidates.length);
+        uint[] memory tempRanks = new uint[](candidates.length);
+        names = new string[](candidates.length);
 
         for (uint i = 0; i < candidates.length; i++) {
-            medians[i] = calculateMedian(candidates[i].score);
+            tempMedians[i] = calculateMedian(candidates[i].score);
+            names[i] = candidates[i].name;
         }
 
-        uint highestMedian = 0;
-
-        for (uint i = 0; i < medians.length; i++) {
-            if (medians[i] > medians[highestMedian]) {
-                highestMedian = i;
+        for (uint i = 0; i < candidates.length; i++) {
+            uint rank = 1;
+            for (uint j = 0; j < candidates.length; j++) {
+                if (tempMedians[j] > tempMedians[i]) {
+                    rank++;
+                }
+                else if (tempMedians[j] == tempMedians[i]){
+                    if (greaterMed(candidates[j].score) > greaterMed(candidates[i].score)) {
+                        rank++;
+                    }
+                }
             }
+            tempRanks[i] = rank;
         }
-
-        return candidates[highestMedian].name;
+        
+        medians = tempMedians;
+        ranks = tempRanks;
     }
-    */
 
-    /// @dev 全体の結果を表示
-    function getResults() public view returns (string[] memory name_, uint[] memory median_, uint[] memory rank_) {
+    /// @dev 優勝者を返す
+    function getWinner() public view returns (string memory winnerName) {
+        (,, uint[] memory tempRanks) = getResults();
+        uint winner = uint(searchIndexUint(tempRanks, 1));
+        return candidates[winner].name;
+    }
+
+
+    /// @dev 候補者名を入れると、その人の中央値と順位が返される
+    function getIndividualResults(string memory CandidateName) public view returns (string memory MedianValue, uint Rank) {
         
         uint[] memory medians = new uint[](candidates.length);
         for (uint i = 0; i < candidates.length; i++) {
@@ -214,93 +230,6 @@ contract Voting {
                     if (greaterMed(candidates[j].score) > greaterMed(candidates[i].score)) {
                         rank++;
                     }
-                }
-            }
-            ranks[i] = rank;
-        }
-
-        string[] memory names = new string[](candidates.length);
-        for (uint i = 0; i < candidates.length; i++) {
-            names[i] = candidates[i].name;
-        }
-        return (names, medians, ranks);
-    }
-
-    /// @dev 優勝者を返す
-    function getWinner() public view returns (string memory winnerName) {
-        uint[] memory medians = new uint[](candidates.length);
-        for (uint i = 0; i < candidates.length; i++) {
-            medians[i] = calculateMedian(candidates[i].score);
-        }
-
-        uint[] memory ranks = new uint[](candidates.length);
-        for (uint i = 0; i < candidates.length; i++) {
-            uint rank = 1;
-            for (uint j = 0; j < candidates.length; j++) {
-                if (medians[j] > medians[i]) {
-                    rank++;
-                }
-                else if (medians[j] == medians[i]){
-                    if (greaterMed(candidates[j].score) < greaterMed(candidates[i].score)) {
-                        rank++;
-                    }
-                }
-            }
-            ranks[i] = rank;
-        }
-        int myInt = 1;
-        uint winner = uint(searchIndexUint(ranks, uint(myInt)));
-        return candidates[winner].name;
-
-    }
-
-    /*
-     * @dev
-     * - インデックスで各々の結果を調べたいならこれを有効化
-    function getIndividualResults(uint CandidateNum) public view returns (string memory MedianValue, uint Rank) {
-        
-        uint[] memory medians = new uint[](candidates.length);
-        for (uint i = 0; i < candidates.length; i++) {
-            medians[i] = calculateMedian(candidates[i].score);
-        }
-
-        uint[] memory ranks = new uint[](candidates.length);
-        for (uint i = 0; i < candidates.length; i++) {
-            uint rank = 1;
-            for (uint j = 0; j < candidates.length; j++) {
-                if (medians[j] > medians[i]) {
-                    rank++;
-                }
-            }
-            ranks[i] = rank;
-        }
-
-        string[] memory names = new string[](candidates.length);
-        for (uint i = 0; i < candidates.length; i++) {
-            names[i] = candidates[i].name;
-        }
-
-        MedianValue = uint2str(medians[CandidateNum]);
-        Rank = ranks[CandidateNum];        
-
-        return (MedianValue, Rank);
-    }
-    */
-
-    /// @dev 候補者名を入れると、その人の中央値と順位が返される
-    function getIndividualResults(string memory CandidateName) public view returns (string memory MedianValue, uint Rank) {
-        
-        uint[] memory medians = new uint[](candidates.length);
-        for (uint i = 0; i < candidates.length; i++) {
-            medians[i] = calculateMedian(candidates[i].score);
-        }
-
-        uint[] memory ranks = new uint[](candidates.length);
-        for (uint i = 0; i < candidates.length; i++) {
-            uint rank = 1;
-            for (uint j = 0; j < candidates.length; j++) {
-                if (medians[j] > medians[i]) {
-                    rank++;
                 }
             }
             ranks[i] = rank;
