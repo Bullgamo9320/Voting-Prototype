@@ -211,7 +211,7 @@ contract Voting {
                     rank++;
                 }
                 else if (medians[j] == medians[i]){
-                    if (greaterMed(candidates[j].score) < greaterMed(candidates[i].score)) {
+                    if (greaterMed(candidates[j].score) > greaterMed(candidates[i].score)) {
                         rank++;
                     }
                 }
