@@ -14,7 +14,7 @@ contract Voting {
 
     Candidate[] public candidates;
     mapping(address => Voter) public voters;
-    /// Result[] public results;
+    address public owner;
 
 
     constructor(string[] memory candidateNames) {
@@ -30,6 +30,28 @@ contract Voting {
         }
     }
 
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Caller is not the owner.");
+        _;
+    }
+
+
+
+    function searchIndex(string[] memory strArr, string memory str) internal pure returns (uint) {
+        for (uint i = 0; i < strArr.length; i++) {
+            if (keccak256(abi.encodePacked(strArr[i])) == keccak256(abi.encodePacked(str))) {
+                return i;
+            }
+        }
+        int errInt = -1;
+        uint errUint = uint(errInt);
+        errUint = uint(int(errUint) + errInt);
+        return errUint;
+
+    }
+
+
+    /// @dev 2つのstringが同じかどうかを見比べる
     function compareStrings(string memory a, string memory b) internal pure returns (bool) {
         return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
     }
@@ -42,9 +64,27 @@ contract Voting {
         for (uint i = 0; i < _scores.length; i++) {
             require(_scores[i] >= 1 && _scores[i] <= 5, "The point must be between 1 and 5.");
             candidates[i].score.push(_scores[i]);
+            sender.scores.push(_scores[i]);
         }
         sender.voted = true;
     }
+
+    function getVoterScores() public view returns (uint[] memory) {
+        Voter storage sender = voters[msg.sender];
+        require(sender.voted, "You have not voted yet.");
+        return sender.scores;
+    }
+
+    /*
+     * @dev
+     * - オーナーだけが他の人の投票結果を見られるようにしたいが、オーナーを認識しないエラーが出たまま。
+    function getVoterScoresForOwner(address voterAddress) public view onlyOwner returns (uint[] memory) {
+        Voter storage voter = voters[voterAddress];
+        require(voter.voted, "This voter has not voted yet.");
+        return voter.scores;
+    }
+    */
+
 
     function calculateMedian(uint[] memory _arr) private pure returns (uint) {
         uint len = _arr.length;
@@ -139,6 +179,7 @@ contract Voting {
         return (names, medians, ranks);
     }
 
+    /*
     function getPersonalResults(uint CandidateNum) public view returns (string memory MedianValue, uint Rank) {
         
         uint[] memory medians = new uint[](candidates.length);
@@ -167,6 +208,37 @@ contract Voting {
 
         return (MedianValue, Rank);
     }
+    */
 
+    function getPersonalResults(string memory CandidateName) public view returns (string memory MedianValue, uint Rank) {
+        
+        uint[] memory medians = new uint[](candidates.length);
+        for (uint i = 0; i < candidates.length; i++) {
+            medians[i] = calculateMedian(candidates[i].score);
+        }
+
+        uint[] memory ranks = new uint[](candidates.length);
+        for (uint i = 0; i < candidates.length; i++) {
+            uint rank = 1;
+            for (uint j = 0; j < candidates.length; j++) {
+                if (medians[j] > medians[i]) {
+                    rank++;
+                }
+            }
+            ranks[i] = rank;
+        }
+
+        string[] memory names = new string[](candidates.length);
+        for (uint i = 0; i < candidates.length; i++) {
+            names[i] = candidates[i].name;
+        }
+
+        uint CandidateNum = searchIndex(names, CandidateName);
+
+        MedianValue = uint2str(medians[CandidateNum]);
+        Rank = ranks[CandidateNum];        
+
+        return (MedianValue, Rank);
+    }
 
 }
