@@ -7,6 +7,9 @@ contract Voting {
     /// @dev オーナーはこのコントラクトをデプロイしたアカウント
     address public owner = msg.sender;
 
+    /// @dev 投票が終わったらfalseに。
+    bool public voteEnded = false;
+
     /// @dev 候補者・投票者それぞれのデータ構造
     struct Candidate {
         string name;
@@ -21,6 +24,8 @@ contract Voting {
     Candidate[] public candidates;
     mapping(address => Voter) public voters;
 
+    event Voted(address voter_);
+    event VoteEnded();
 
     constructor(string[] memory candidateNames) {
         /*
@@ -62,7 +67,7 @@ contract Voting {
 
     }
 
-    
+    /// @dev 配列の中から数字を検索し、それが配列の何番目にあるかを返す
     function searchIndexUint(uint[] memory uintArr, uint num) internal pure returns (int) {
         for (uint i = 0; i < uintArr.length; i++) {
             if (uintArr[i] == num) {
@@ -75,7 +80,7 @@ contract Voting {
     
 
 
-    /// @dev 2つのstringが同じかどうかを見比べる
+    /// @dev 2つのstringが同じかどうかを見比べる。単純比較はできないので一旦バイト列に変換
     function compareStrings(string memory a, string memory b) internal pure returns (bool) {
         return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
     }
@@ -88,6 +93,7 @@ contract Voting {
      * - 点数は1-5点
      */
     function vote(uint[] memory _scores) public {
+        require(!voteEnded, "This vote has already ended.");
         Voter storage sender = voters[msg.sender];
         require(!sender.voted, "Already voted.");
         require(_scores.length == candidates.length, "Invalid number of scores.");
@@ -97,6 +103,7 @@ contract Voting {
             sender.scores.push(_scores[i]);
         }
         sender.voted = true;
+        emit Voted(msg.sender);
     }
 
     /// @dev 自分の投票内容を見る
@@ -113,7 +120,7 @@ contract Voting {
         return voter.scores;
     }
 
-    /// @dev 中央値の計算。外部の状態は参照しないし変更もしないのでpure
+    /// @dev 中央値の計算。外部の状態は参照しないし変更もしないのでpure。solidityは小数点を表せないことに注意
     function calculateMedian(uint[] memory _arr) private pure returns (uint) {
         uint len = _arr.length;
         if (len == 0) return 0;
@@ -139,7 +146,8 @@ contract Voting {
         }
     }
 
-    function greaterMed(uint[] memory Arr) public pure returns (uint) {
+    /// @dev 中央値よりも大きな数の個数を数える
+    function greaterMed(uint[] memory Arr) private pure returns (uint) {
         uint counter = 0;
         uint median = calculateMedian(Arr);
         for(uint i = 0; i < Arr.length; i++) {
@@ -246,6 +254,15 @@ contract Voting {
         Rank = ranks[CandidateNum];        
 
         return (MedianValue, Rank);
+    }
+
+    function endVoting() public onlyOwner returns(string memory winner_) {
+        voteEnded = true;
+        emit VoteEnded();
+        
+        (,, uint[] memory tempRanks) = getResults();
+        uint winner = uint(searchIndexUint(tempRanks, 1));
+        return candidates[winner].name;
     }
 
 }
