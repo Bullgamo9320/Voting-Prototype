@@ -5,10 +5,12 @@ pragma solidity ^0.8.9;
 contract Voting {
 
     /// @dev オーナーはこのコントラクトをデプロイしたアカウント
-    address public owner = msg.sender;
+    address public owner;
 
     /// @dev 投票が終わったらfalseに。
     bool public voteEnded = false;
+
+    uint public numOfVoters = 0;
 
     /// @dev 候補者・投票者それぞれのデータ構造
     struct Candidate {
@@ -17,17 +19,21 @@ contract Voting {
     }
     struct Voter {
         bool voted;
+        bool granted;
         uint[] scores;
     }
 
     /// @dev 候補者の配列、アドレスと投票者を結びつけるマッピング
-    Candidate[] public candidates;
-    mapping(address => Voter) public voters;
+    Candidate[] internal candidates; ///internalにすれば表示は消える
+    mapping(address => Voter) internal voters;
 
     event Voted(address voter_);
     event VoteEnded();
 
     constructor(string[] memory candidateNames) {
+        owner = msg.sender;
+        Voter storage owner_ = voters[owner];
+        owner_.granted = true;
         /*
          * @dev もし候補者の人数に制限があるなら
          * - require(candidateNames.length == 5, "The number of candidates must be 5.");
@@ -50,6 +56,11 @@ contract Voting {
         _;
     }
 
+    function giveRight(address addr) public onlyOwner {
+        Voter storage receiver = voters[addr];
+        require(!receiver.granted, "This account has already been granted voting rights.");
+        receiver.granted = true;
+    }
 
     /// @dev 配列の中から文字を検索し、それが配列の何番目にあるかを返す
     function searchIndexStr(string[] memory strArr, string memory str) internal pure returns (uint) {
@@ -96,6 +107,7 @@ contract Voting {
         require(!voteEnded, "This vote has already ended.");
         Voter storage sender = voters[msg.sender];
         require(!sender.voted, "Already voted.");
+        require(sender.granted, "You do not have rights to vote.");
         require(_scores.length == candidates.length, "Invalid number of scores.");
         for (uint i = 0; i < _scores.length; i++) {
             require(_scores[i] >= 1 && _scores[i] <= 5, "The point must be between 1 and 5.");
@@ -103,6 +115,7 @@ contract Voting {
             sender.scores.push(_scores[i]);
         }
         sender.voted = true;
+        numOfVoters += 1;
         emit Voted(msg.sender);
     }
 
