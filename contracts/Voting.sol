@@ -101,7 +101,8 @@ contract Voting {
      * - 投票
      * - 一度投票したら二度と投票できない
      * - 候補者の数と同じ数の配列であることを確認
-     * - 点数は1-5点
+     * - 点数は1-4点
+     * - 点数を入れない場合は100点。-1だと色々とエラーが出てくるので、とりあえずの処置
      */
     function vote(uint[] memory _scores) public {
         require(!voteEnded, "This vote has already ended.");
@@ -110,13 +111,12 @@ contract Voting {
         require(sender.granted, "You do not have rights to vote.");
         require(_scores.length == candidates.length, "Invalid number of scores.");
         for (uint i = 0; i < _scores.length; i++) {
-            require(_scores[i] >= 1 && _scores[i] <= 5, "The point must be between 1 and 5.");
-            candidates[i].score.push(_scores[i]);
+            //require(_scores[i] >= 1 && _scores[i] <= 4, "The point must be between 1 and 4.");
+            if(_scores[i] != uint256(100)){
+                candidates[i].score.push(_scores[i]);
+            }
             sender.scores.push(_scores[i]);
         }
-        sender.voted = true;
-        numOfVoters += 1;
-        emit Voted(msg.sender);
     }
 
     /// @dev 自分の投票内容を見る
