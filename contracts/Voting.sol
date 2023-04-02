@@ -1,5 +1,12 @@
 // SPDX-License-Identifier: MIT
 
+/*
+ * - @dev
+ * - 追加予定機能
+ * --- 候補者が得た得点を配列の形で全て表示する -->済
+ * --- 同点だった場合の処理。 -->コード自体はほぼ書けたもののうまくいかないので調整必要
+ */
+
 pragma solidity ^0.8.9;
 
 contract Voting {
@@ -19,7 +26,7 @@ contract Voting {
     }
     struct Voter {
         bool voted;
-        bool granted;
+        //bool granted;
         uint[] scores;
     }
 
@@ -32,8 +39,8 @@ contract Voting {
 
     constructor(string[] memory candidateNames) {
         owner = msg.sender;
-        Voter storage owner_ = voters[owner];
-        owner_.granted = true;
+        //Voter storage owner_ = voters[owner];
+        //owner_.granted = true;
         /*
          * @dev もし候補者の人数に制限があるなら
          * - require(candidateNames.length == 5, "The number of candidates must be 5.");
@@ -56,11 +63,13 @@ contract Voting {
         _;
     }
 
+/*
     function giveRight(address addr) public onlyOwner {
         Voter storage receiver = voters[addr];
         require(!receiver.granted, "This account has already been granted voting rights.");
         receiver.granted = true;
     }
+    */
 
     /// @dev 配列の中から文字を検索し、それが配列の何番目にあるかを返す
     function searchIndexStr(string[] memory strArr, string memory str) internal pure returns (uint) {
@@ -102,21 +111,24 @@ contract Voting {
      * - 一度投票したら二度と投票できない
      * - 候補者の数と同じ数の配列であることを確認
      * - 点数は1-4点
-     * - 点数を入れない場合は100点。-1だと色々とエラーが出てくるので、とりあえずの処置
+     * - 点数を入れない場合は100点
      */
     function vote(uint[] memory _scores) public {
         require(!voteEnded, "This vote has already ended.");
         Voter storage sender = voters[msg.sender];
         require(!sender.voted, "Already voted.");
-        require(sender.granted, "You do not have rights to vote.");
+        //require(sender.granted, "You do not have rights to vote.");
         require(_scores.length == candidates.length, "Invalid number of scores.");
         for (uint i = 0; i < _scores.length; i++) {
-            //require(_scores[i] >= 1 && _scores[i] <= 4, "The point must be between 1 and 4.");
+            require((_scores[i] >= 1 && _scores[i] <= 4) || _scores[i] == 100, "The point must be between 1 and 4. If you want t abstain, enter 100.");
             if(_scores[i] != uint256(100)){
                 candidates[i].score.push(_scores[i]);
             }
             sender.scores.push(_scores[i]);
         }
+        sender.voted = true;
+        numOfVoters += 1;
+        emit Voted(msg.sender);
     }
 
     /// @dev 自分の投票内容を見る
@@ -159,7 +171,127 @@ contract Voting {
         }
     }
 
+
+    /// @dev 中央値の値以下の値の総数を返す
+    function lessMed(uint[] memory _arr) private pure returns (uint greatNum) {
+        uint len = _arr.length;
+        if (len == 0) return 0;
+        uint mid = len / 2;
+        uint[] memory arr = _arr;
+
+        for (uint i = 0; i < len; i++) {
+            uint min = i;
+            for (uint j = i + 1; j < len; j++) {
+                if (arr[j] < arr[min]) {
+                    min = j;
+                }
+            }
+            uint tmp = arr[min];
+            arr[min] = arr[i];
+            arr[i] = tmp;
+        }
+
+        if (len % 2 == 0) {
+            uint med = (arr[mid - 1] + arr[mid]) / 2;
+            return uint(searchIndexUint(arr, (med + uint(1))) / int(arr.length));
+
+        } else {
+            uint med = arr[mid];
+            return uint(searchIndexUint(arr, (med + uint(1))) / int(arr.length));
+        }
+
+    }
+
+    /// @dev 中央値の値以上の値の総数を返す
+    function greaterMed(uint[] memory _arr) private pure returns (uint lessNum) {
+        uint len = _arr.length;
+        if (len == 0) return 0;
+        uint mid = len / 2;
+        uint[] memory arr = _arr;
+
+        for (uint i = 0; i < len; i++) {
+            uint min = i;
+            for (uint j = i + 1; j < len; j++) {
+                if (arr[j] < arr[min]) {
+                    min = j;
+                }
+            }
+            uint tmp = arr[min];
+            arr[min] = arr[i];
+            arr[i] = tmp;
+        }
+
+        if (len % 2 == 0) {
+            uint med = (arr[mid - 1] + arr[mid]) / 2;
+            return uint((int(arr.length) - searchIndexUint(arr, med))/int(arr.length));
+
+        } else {
+            uint med = arr[mid];
+            return uint((int(arr.length) - searchIndexUint(arr, med))/int(arr.length));
+        }
+
+    }
+
+    function Less(uint[] memory _arr) private pure returns (uint LessNum) {
+        uint len = _arr.length;
+        if (len == 0) return 0;
+        uint mid = len / 2;
+        uint[] memory arr = _arr;
+
+        for (uint i = 0; i < len; i++) {
+            uint min = i;
+            for (uint j = i + 1; j < len; j++) {
+                if (arr[j] < arr[min]) {
+                    min = j;
+                }
+            }
+            uint tmp = arr[min];
+            arr[min] = arr[i];
+            arr[i] = tmp;
+        }
+
+        if (len % 2 == 0) {
+            uint med = (arr[mid - 1] + arr[mid]) / 2;
+            return uint(searchIndexUint(arr, med) / int(arr.length));
+
+        } else {
+            uint med = arr[mid];
+            return uint(searchIndexUint(arr, med) / int(arr.length));
+        }
+    }
+
+    function Greater(uint[] memory _arr) private pure returns (uint GreaterNum) {
+        uint len = _arr.length;
+        if (len == 0) return 0;
+        uint mid = len / 2;
+        uint[] memory arr = _arr;
+
+        for (uint i = 0; i < len; i++) {
+            uint min = i;
+            for (uint j = i + 1; j < len; j++) {
+                if (arr[j] < arr[min]) {
+                    min = j;
+                }
+            }
+            uint tmp = arr[min];
+            arr[min] = arr[i];
+            arr[i] = tmp;
+        }
+
+        if (len % 2 == 0) {
+            uint med = (arr[mid - 1] + arr[mid]) / 2;
+            return uint((int(arr.length) - searchIndexUint(arr, med + uint(1)))/int(arr.length));
+
+        } else {
+            uint med = arr[mid];
+            return uint((int(arr.length) - searchIndexUint(arr, med + uint(1)))/int(arr.length));
+        }
+    }
+
+    
+
     /// @dev 中央値よりも大きな数の個数を数える
+    /*
     function greaterMed(uint[] memory Arr) private pure returns (uint) {
         uint counter = 0;
         uint median = calculateMedian(Arr);
@@ -170,6 +302,7 @@ contract Voting {
         }
         return counter;
     }
+    */
 
     /// @dev uint型をstring型に変換
     function uint2str(uint _i) internal pure returns (string memory str) {
@@ -211,11 +344,31 @@ contract Voting {
                 if (tempMedians[j] > tempMedians[i]) {
                     rank++;
                 }
+                
                 else if (tempMedians[j] == tempMedians[i]){
-                    if (greaterMed(candidates[j].score) > greaterMed(candidates[i].score)) {
+                    /// @dev iについては「中央値よりも大きな値」が「中央値より小さな値」よりも少なく、jはその逆の場合。iの順位が下がる
+                    if ((greaterMed(candidates[i].score) < lessMed(candidates[i].score)) && (greaterMed(candidates[j].score) > lessMed(candidates[j].score))) {
                         rank++;
                     }
+                    /// @dev　上の逆については、順位は変える必要ない
+                    else if ((greaterMed(candidates[i].score) > lessMed(candidates[i].score)) && (greaterMed(candidates[j].score) < lessMed(candidates[j].score))) {
+
+                    }
+                    /// @dev　どっちも「中央値よりも大きな値」が「中央値より小さな値」よりも少ない場合、中央値よりも小さい評価が少ない方が上位
+                    else if ((greaterMed(candidates[i].score) <= lessMed(candidates[i].score)) && (greaterMed(candidates[j].score) <= lessMed(candidates[j].score))) {
+                        if (Less(candidates[i].score) > Less(candidates[j].score)){
+                            rank++;
+                        }
+                    }
+                    /// @dev 上の逆
+                    else if ((greaterMed(candidates[i].score) > lessMed(candidates[i].score)) && (greaterMed(candidates[j].score) > lessMed(candidates[j].score))) {
+                        if (Greater(candidates[i].score) < Greater(candidates[j].score)){
+                            rank++;
+                        }
+                    }
+                    else{}
                 }
+                
             }
             tempRanks[i] = rank;
         }
@@ -233,7 +386,7 @@ contract Voting {
 
 
     /// @dev 候補者名を入れると、その人の中央値と順位が返される
-    function getIndividualResults(string memory CandidateName) public view returns (string memory MedianValue, uint Rank) {
+    function getIndividualResults(string memory CandidateName) public view returns (string memory MedianValue, uint Rank, uint[] memory ScoreGet) {
         
         uint[] memory medians = new uint[](candidates.length);
         for (uint i = 0; i < candidates.length; i++) {
@@ -247,11 +400,30 @@ contract Voting {
                 if (medians[j] > medians[i]) {
                     rank++;
                 }
+                
                 else if (medians[j] == medians[i]){
-                    if (greaterMed(candidates[j].score) > greaterMed(candidates[i].score)) {
+                    /// @dev iについては「中央値よりも大きな値」が「中央値より小さな値」よりも少なく、jはその逆の場合。iの順位が下がる
+                    if ((greaterMed(candidates[i].score) < lessMed(candidates[i].score)) && (greaterMed(candidates[j].score) > lessMed(candidates[j].score))) {
                         rank++;
                     }
+                    /// @dev　上の逆については、順位は変える必要ない
+                    else if ((greaterMed(candidates[i].score) > lessMed(candidates[i].score)) && (greaterMed(candidates[j].score) < lessMed(candidates[j].score))) {
+
+                    }
+                    /// @dev　どっちも「中央値よりも大きな値」が「中央値より小さな値」よりも少ない場合、中央値よりも小さい評価が少ない方が上位
+                    else if ((greaterMed(candidates[i].score) <= lessMed(candidates[i].score)) && (greaterMed(candidates[j].score) <= lessMed(candidates[j].score))) {
+                        if (Less(candidates[i].score) > Less(candidates[j].score)){
+                            rank++;
+                        }
+                    }
+                    /// @dev 上の逆
+                    else if ((greaterMed(candidates[i].score) > lessMed(candidates[i].score)) && (greaterMed(candidates[j].score) > lessMed(candidates[j].score))) {
+                        if (Greater(candidates[i].score) < Greater(candidates[j].score)){
+                            rank++;
+                        }
+                    }
                 }
+                
             }
             ranks[i] = rank;
         }
@@ -264,10 +436,12 @@ contract Voting {
         uint CandidateNum = searchIndexStr(names, CandidateName);
 
         MedianValue = uint2str(medians[CandidateNum]);
-        Rank = ranks[CandidateNum];        
+        Rank = ranks[CandidateNum];
+        ScoreGet = candidates[CandidateNum].score;     
 
-        return (MedianValue, Rank);
+        return (MedianValue, Rank, ScoreGet);
     }
+
 
     function endVoting() public onlyOwner returns(string memory winner_) {
         voteEnded = true;
