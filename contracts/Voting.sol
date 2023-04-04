@@ -2,9 +2,12 @@
 
 /*
  * - @dev
- * - 追加予定機能
- * --- 候補者が得た得点を配列の形で全て表示する -->済
- * --- 同点だった場合の処理。 -->コード自体はほぼ書けたもののうまくいかないので調整必要
+ * - とりあえず大まかには完成
+ * - 実際にテストとして動かしてみるのにgiveRights functionは邪魔なのでコメントアウトしています
+ * 
+ * - <残りやること>
+ * --- uintとintを揃える。型がぐちゃぐちゃ(searchとか特に)
+ * --- 様々なパターンでの確認
  */
 
 pragma solidity ^0.8.9;
@@ -174,125 +177,30 @@ contract Voting {
 
     /// @dev 中央値の値以下の値の総数を返す
     function lessMed(uint[] memory _arr) private pure returns (uint greatNum) {
-        uint len = _arr.length;
-        if (len == 0) return 0;
-        uint mid = len / 2;
-        uint[] memory arr = _arr;
-
-        for (uint i = 0; i < len; i++) {
-            uint min = i;
-            for (uint j = i + 1; j < len; j++) {
-                if (arr[j] < arr[min]) {
-                    min = j;
-                }
+        uint counter = 0;
+        uint median = calculateMedian(_arr);
+        for(uint i = 0; i < _arr.length; i++) {
+            if (median >= _arr[i]) {
+                counter++;
             }
-            uint tmp = arr[min];
-            arr[min] = arr[i];
-            arr[i] = tmp;
         }
-
-        if (len % 2 == 0) {
-            uint med = (arr[mid - 1] + arr[mid]) / 2;
-            return uint(searchIndexUint(arr, (med + uint(1))) / int(arr.length));
-
-        } else {
-            uint med = arr[mid];
-            return uint(searchIndexUint(arr, (med + uint(1))) / int(arr.length));
-        }
-
+        return counter*100/_arr.length;
     }
 
     /// @dev 中央値の値以上の値の総数を返す
     function greaterMed(uint[] memory _arr) private pure returns (uint lessNum) {
-        uint len = _arr.length;
-        if (len == 0) return 0;
-        uint mid = len / 2;
-        uint[] memory arr = _arr;
-
-        for (uint i = 0; i < len; i++) {
-            uint min = i;
-            for (uint j = i + 1; j < len; j++) {
-                if (arr[j] < arr[min]) {
-                    min = j;
-                }
+        uint counter = 0;
+        uint median = calculateMedian(_arr);
+        for(uint i = 0; i < _arr.length; i++) {
+            if (median <= _arr[i]) {
+                counter++;
             }
-            uint tmp = arr[min];
-            arr[min] = arr[i];
-            arr[i] = tmp;
         }
-
-        if (len % 2 == 0) {
-            uint med = (arr[mid - 1] + arr[mid]) / 2;
-            return uint((int(arr.length) - searchIndexUint(arr, med))/int(arr.length));
-
-        } else {
-            uint med = arr[mid];
-            return uint((int(arr.length) - searchIndexUint(arr, med))/int(arr.length));
-        }
-
+        return counter*100/_arr.length;
     }
 
-    function Less(uint[] memory _arr) private pure returns (uint LessNum) {
-        uint len = _arr.length;
-        if (len == 0) return 0;
-        uint mid = len / 2;
-        uint[] memory arr = _arr;
 
-        for (uint i = 0; i < len; i++) {
-            uint min = i;
-            for (uint j = i + 1; j < len; j++) {
-                if (arr[j] < arr[min]) {
-                    min = j;
-                }
-            }
-            uint tmp = arr[min];
-            arr[min] = arr[i];
-            arr[i] = tmp;
-        }
-
-        if (len % 2 == 0) {
-            uint med = (arr[mid - 1] + arr[mid]) / 2;
-            return uint(searchIndexUint(arr, med) / int(arr.length));
-
-        } else {
-            uint med = arr[mid];
-            return uint(searchIndexUint(arr, med) / int(arr.length));
-        }
-    }
-
-    function Greater(uint[] memory _arr) private pure returns (uint GreaterNum) {
-        uint len = _arr.length;
-        if (len == 0) return 0;
-        uint mid = len / 2;
-        uint[] memory arr = _arr;
-
-        for (uint i = 0; i < len; i++) {
-            uint min = i;
-            for (uint j = i + 1; j < len; j++) {
-                if (arr[j] < arr[min]) {
-                    min = j;
-                }
-            }
-            uint tmp = arr[min];
-            arr[min] = arr[i];
-            arr[i] = tmp;
-        }
-
-        if (len % 2 == 0) {
-            uint med = (arr[mid - 1] + arr[mid]) / 2;
-            return uint((int(arr.length) - searchIndexUint(arr, med + uint(1)))/int(arr.length));
-
-        } else {
-            uint med = arr[mid];
-            return uint((int(arr.length) - searchIndexUint(arr, med + uint(1)))/int(arr.length));
-        }
-    }
-
-    
-
-    /// @dev 中央値よりも大きな数の個数を数える
-    /*
-    function greaterMed(uint[] memory Arr) private pure returns (uint) {
+    function Greater(uint[] memory Arr) private pure returns (uint){
         uint counter = 0;
         uint median = calculateMedian(Arr);
         for(uint i = 0; i < Arr.length; i++) {
@@ -300,9 +208,20 @@ contract Voting {
                 counter++;
             }
         }
-        return counter;
+        return counter*100/Arr.length;
     }
-    */
+
+    function Less(uint[] memory Arr_) private pure returns (uint){
+        uint counter = 0;
+        uint median = calculateMedian(Arr_);
+        for(uint i = 0; i < Arr_.length; i++) {
+            if (median > Arr_[i]) {
+                counter++;
+            }
+        }
+        return counter*100/Arr_.length;
+    }
+
 
     /// @dev uint型をstring型に変換
     function uint2str(uint _i) internal pure returns (string memory str) {
