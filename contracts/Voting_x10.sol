@@ -4,6 +4,7 @@
  * - @dev
  * - とりあえず大まかには完成
  * - 実際にテストとして動かしてみるのにgiveRights functionは邪魔なのでコメントアウトしています
+ * - 得た棄権以外の票数が、特定の値以下の場合は順位を10000位とする
  * 
  * - <重要>
  * - solidityにおいては小数点を表すことができないため、例えば「7/2 = 3」となってしまいます。
@@ -173,7 +174,7 @@ contract Voting {
         if (len % 2 == 0) {
             return (arr[mid - 1] + arr[mid]) * 10 / 2;
         } else {
-            return arr[mid] * 10;
+            return arr[mid] *10 ;
         }
     }
 
@@ -187,7 +188,7 @@ contract Voting {
                 counter++;
             }
         }
-        return counter * 100/_arr.length;
+        return counter*100/_arr.length;
     }
 
     /// @dev 中央値の値以上の値の総数を返す
@@ -199,7 +200,7 @@ contract Voting {
                 counter++;
             }
         }
-        return counter * 100/_arr.length;
+        return counter*100/_arr.length;
     }
 
 
@@ -211,7 +212,7 @@ contract Voting {
                 counter++;
             }
         }
-        return counter * 100/Arr.length;
+        return counter*100/Arr.length;
     }
 
     function Less(uint[] memory Arr_) private pure returns (uint){
@@ -254,9 +255,15 @@ contract Voting {
         uint[] memory tempMedians = new uint[](candidates.length);
         uint[] memory tempRanks = new uint[](candidates.length);
         names = new string[](candidates.length);
+        //uint minScoreLength = numOfVoters * 3 / 10;
+        uint minScoreLength = 2;
 
         for (uint i = 0; i < candidates.length; i++) {
-            tempMedians[i] = calculateMedian(candidates[i].score);
+            if (candidates[i].score.length < minScoreLength) {
+                tempMedians[i] = 0; // 得点が一定の長さよりも小さい場合、中央値を0に設定
+            } else {
+                tempMedians[i] = calculateMedian(candidates[i].score);
+            }
             names[i] = candidates[i].name;
         }
 
@@ -292,6 +299,9 @@ contract Voting {
                 }
                 
             }
+            if (tempMedians[i] == 0){
+                rank = 10000;
+            }
             tempRanks[i] = rank;
         }
         
@@ -311,8 +321,15 @@ contract Voting {
     function getIndividualResults(string memory CandidateName) public view returns (string memory MedianValue, uint Rank, uint[] memory ScoreGet) {
         
         uint[] memory medians = new uint[](candidates.length);
+        //uint minScoreLength = numOfVoters * 3 / 10;
+        uint minScoreLength = 2;
+
         for (uint i = 0; i < candidates.length; i++) {
-            medians[i] = calculateMedian(candidates[i].score);
+            if (candidates[i].score.length < minScoreLength) {
+                medians[i] = 0; // 得点が一定の長さよりも小さい場合、中央値を0に設定
+            } else {
+                medians[i] = calculateMedian(candidates[i].score);
+            }
         }
 
         uint[] memory ranks = new uint[](candidates.length);
@@ -346,6 +363,9 @@ contract Voting {
                     }
                 }
                 
+            }
+            if (medians[i] == 0){
+                rank = 10000;
             }
             ranks[i] = rank;
         }
