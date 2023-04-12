@@ -10,7 +10,7 @@ const main = async () => {
     voting = await Voting.deploy(["Alice", "Bob"]);
     await voting.deployed();
 
-    console.log(`Contract deployed to: https://sepolia.etherscan.io/address/${voting.address}`);
+    console.log(`Contract deployed to: https://mumbai.polygonscan.com/address/${voting.address}`);
 
     //NFTをmintする
     let tx = await voting.vote([1,3]);
