@@ -6,35 +6,26 @@ const main = async () => {
     const addr3 = "0xF154A4d12adE3F9fbaC19f83A37D6D688c223507";
 
     // デプロイ
-    MemberNFT = await ethers.getContractFactory("MemberNFT");
-    memberNFT = await MemberNFT.deploy();
-    await memberNFT.deployed();
+    Voting = await ethers.getContractFactory("Voting");
+    voting = await Voting.deploy(["Alice", "Bob"]);
+    await voting.deployed();
 
-    console.log(`Contract deployed to: https://goerli.etherscan.io/address/${memberNFT.address}`);
+    console.log(`Contract deployed to: https://sepolia.etherscan.io/address/${voting.address}`);
 
     //NFTをmintする
-    let tx = await memberNFT.nftMint(addr1, tokenURI1);
+    let tx = await voting.vote([1,3]);
     await tx.wait();
-    console.log("NFT#1 minted...");
-    tx = await memberNFT.nftMint(addr1, tokenURI2);
-    await tx.wait();
-    console.log("NFT#2 minted...");
-    tx = await memberNFT.nftMint(addr2, tokenURI3);
-    await tx.wait();
-    console.log("NFT#3 minted...");
-    tx = await memberNFT.nftMint(addr2, tokenURI4);
-    await tx.wait();
-    console.log("NFT#4 minted...");
+    console.log("Voted");
 
     //コントラクトアドレスの書き出し
-    fs.writeFileSync("./memberNFTContract.js",
+    fs.writeFileSync("./votingContract.js",
     `
-    module.exports = "${memberNFT.address}"
+    module.exports = "${voting.address}"
     `
     );
 }
 
-const memberNFTDeploy = async () => {
+const votingDeploy = async () => {
     try{
         await main();
         process.exit(0);
@@ -44,4 +35,4 @@ const memberNFTDeploy = async () => {
     }
 };
 
-memberNFTDeploy();
+votingDeploy();
