@@ -2,21 +2,12 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 describe("Votingコントラクト", function() {
-    let Voting;
-    let voting;
-    
-    /*
-    const name = "MemberNFT";
-    const symbol = "MEM";
-    let owner;
-    let addr1;
-    */
-
-    beforeEach(async function() {
-        ///[owner, addr1] = await ethers.getSigners();
-        Voting = await ethers.getContractFactory("Voting");
-        voting = await voting.deploy();
+    it("デプロイアドレスがownerに設定されるべき",async function(){
+        const Arr = ["Alice", "Bob"]
+        const [owner] = await ethers.getSigners();
+        const Voting = await ethers.getContractFactory("Voting");
+        const voting = await Voting.deploy(Arr);
         await voting.deployed();
+        expect(await voting.owner()).to.equal(owner.address);
     });
-    
 })
