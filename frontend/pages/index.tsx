@@ -29,8 +29,24 @@ export default function Home() {
       alert('MetaMaskをインストールしてください！');
     }
   }
+  const checkChainId = async () => {
+    const { ethereum } = window;
+    if(ethereum) {
+      const chain = await ethereum.request({method: 'eth_chainId'});
+      console.log(`chain: ${chain}`);
+
+      if (chain != mumbaiId) {
+        alert('Mumbaiに接続してください')
+        setChainId(false)
+        return
+      } else {
+        setChainId(true)
+      }
+    }
+  }
   useEffect(() => {
     checkMetaMaskInstalled()
+    checkChainId()
   }, [])
   return (
     <div className={'flex flex-col items-center bg-slate-100 text-blue-900 min-h-screen'}>
