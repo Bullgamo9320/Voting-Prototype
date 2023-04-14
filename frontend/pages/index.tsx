@@ -10,6 +10,28 @@ import Head from 'next/head'
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
+  const [account, setAccount] = useState('')
+  const [chainId, setChainId] = useState(false)
+  const [numOfVoters, setNumOfVoters] = useState('')
+  const [winner, setWinner] = useState('')
+  const [owner, setOwner] = useState('')
+  const [result, setResult] = useState({ names: '', medians: '', ranks: ''});
+  const [individualResult, setIndividualResult] = useState({ MedianValue: '', Rank: '', ScoreGet: ''});
+  const [getVoterScores, setGetVoterScores] = useState([])
+  const [ForOwnerGet,setForOwnerGet] = useState([])
+  const [VoteEnded, setVoteEnded] = useState(false)
+  const mumbaiId = "0x13881";
+  const zeroAddress = "0x0000000000000000000000000000000000000000";
+
+  const checkMetaMaskInstalled = async () => {
+    const { ethereum } = window;
+    if (!ethereum) {
+      alert('MetaMaskをインストールしてください！');
+    }
+  }
+  useEffect(() => {
+    checkMetaMaskInstalled()
+  }, [])
   return (
     <div className={'flex flex-col items-center bg-slate-100 text-blue-900 min-h-screen'}>
       <Head>
