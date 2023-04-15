@@ -18,7 +18,8 @@ export default function Home() {
   const [result, setResult] = useState({ names: '', medians: '', ranks: ''});
   const [individualResult, setIndividualResult] = useState({ MedianValue: '', Rank: '', ScoreGet: ''});
   const [getVoterScores, setGetVoterScores] = useState([])
-  const [ForOwnerGet,setForOwnerGet] = useState([])
+  const [voterAddress, setVoterAddress] = useState('');
+  const [voterScores, setVoterScores] = useState('');
   const [VoteEnded, setVoteEnded] = useState(false)
   const mumbaiId = "0x13881";
   const zeroAddress = "0x0000000000000000000000000000000000000000";
@@ -78,9 +79,7 @@ const connectWallet = async () => {
 
     const VoteEnded = await votingContract.voteEnded();
     console.log(`VoteEnded: ${VoteEnded}`);
-    setVoteEnded(VoteEnded);
-
-    
+    setVoteEnded(VoteEnded); 
 
     ethereum.on('accountsChanged', checkAccountChanged);
     ethereum.on('chainChanged', checkChainId);
@@ -99,11 +98,37 @@ const checkAccountChanged = () => {
   setWinner('');
   setResult({ names: '', medians: '', ranks: ''});
   setIndividualResult({ MedianValue: '', Rank: '', ScoreGet: ''});
-  setForOwnerGet([]);
+  setVoterAddress('');
+  setVoterScores('');
   setGetVoterScores([]);
   setVoteEnded(false);
 }
 
+
+const handleAddressChange = (e) => {
+  setVoterAddress(e.target.value); // アドレスを更新
+};
+
+
+const handleResultDisplay = async (event) => {
+
+  event.preventDefault();
+
+  const { ethereum } = window;
+  const accounts = await ethereum.request({
+    method: 'eth_requestAccounts'
+  });
+  console.log(`account: ${accounts[0]}`)
+  setAccount(accounts[0])
+
+  const provider = new ethers.providers.Web3Provider(ethereum);
+  const signer = provider.getSigner();
+  const votingContract = new ethers.Contract(VotingAddress, Voting.abi, signer);
+
+  const getOtherScores = await votingContract.ForOwnerGetVoterScores(voterAddress); // アドレスを引数に渡す
+  console.log(`his/her vote result: ${getOtherScores}`);
+  setVoterScores(getOtherScores); // 結果を状態として保存
+};
 
 
 
@@ -152,20 +177,27 @@ const checkAccountChanged = () => {
                   >投票終了</button>
                   
                 <>
-                  <form className="flex pl-1 py-1 mb-1 bg-white border border-gray-400">
+                  <div>
                     <input
                       type="text"
                       className="w-5/12 ml-2 text-center border border-gray-400"
                       name="VoterAddress"
                       placeholder="address to display the result"
-                      onChange={''}
-                      value={''}
+                      onChange={handleAddressChange}
+                      value={voterAddress} // アドレスの状態を反映
                     />
                     <button
                       className="w-2/12 mx-2 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
-                      onClick={''}
-                    >結果表示</button>
-                  </form>
+                      onClick={handleResultDisplay} // ボタンクリック時に結果を取得
+                    >
+                      結果表示
+                    </button>
+                      {voterScores !== '' ? (
+                        <span className="flex flex-col items-left font-semibold">
+                        his/her vote: {`${voterScores}`}
+                        </span>
+                      ) : (<></>)} 
+                  </div>
                 </>
                 </div>
               ):(<></>)
@@ -190,11 +222,43 @@ const checkAccountChanged = () => {
               </div>
               {getVoterScores.length == 0 ? (
               <>
-                <form className="flex pl-1 py-1 mb-1 bg-white border border-gray-400">
-                  <button
-                    className="w-2/12 mx-2 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
-                    onClick={''}
-                  >投票</button>
+                <form className="flex pl-1 pr-1 py-1 mb-1 bg-white border border-gray-400">
+                  <div className= "w-full flex justify-between flex-col">
+                    <span className="pb-4">Alice：〇〇党。こんにちは。私の名前はAliceです。</span>
+                    <div className= "w-full flex justify-between" >
+                      <button
+                        className="w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
+                        onClick={''}
+                      >
+                        大好き
+                      </button>
+                      <button
+                        className="w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
+                        onClick={''}
+                      >
+                        興味あり
+                      </button>
+                      <button
+                        className="w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
+                        onClick={''}
+                      >
+                        まあいいんじゃない
+                      </button>
+                      <button
+                        className="w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
+                        onClick={''}
+                      >
+                        やめた方がいい
+                      </button>
+                      <button
+                        className="w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
+                        onClick={''}
+                      >
+                        棄権する
+                      </button>
+                    </div>      
+                  </div>
+            
                 </form>
               </>) : (<></>)}
             </div>

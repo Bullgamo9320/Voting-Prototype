@@ -8,13 +8,13 @@ const main = async () => {
 
     // デプロイ
     Voting = await ethers.getContractFactory("Voting");
-    voting = await Voting.deploy(["Alice", "Bob"]);
+    voting = await Voting.deploy(["Alice", "Bob", "Chris"]);
     await voting.deployed();
 
     console.log(`Contract deployed to: https://mumbai.polygonscan.com/address/${voting.address}`);
 
     //voteする
-    let tx = await voting.vote([100,100]);
+    let tx = await voting.vote([100,100,100]);
     await tx.wait();
     console.log("Voted");
 
@@ -28,7 +28,7 @@ const main = async () => {
     fs.writeFileSync("./argument.js",
     `
     module.exports = [
-        "[Alice,Bob]"
+        "[Alice,Bob,Chris]",
         "${VotingAddress}"
     ]
     `
