@@ -150,6 +150,23 @@ const checkAccountChanged = () => {
                     className="w-2/8 mx-2 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
                     onClick={() => setVoteEnded(true)}
                   >投票終了</button>
+                  
+                <>
+                  <form className="flex pl-1 py-1 mb-1 bg-white border border-gray-400">
+                    <input
+                      type="text"
+                      className="w-5/12 ml-2 text-center border border-gray-400"
+                      name="VoterAddress"
+                      placeholder="address to display the result"
+                      onChange={''}
+                      value={''}
+                    />
+                    <button
+                      className="w-2/12 mx-2 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
+                      onClick={''}
+                    >結果表示</button>
+                  </form>
+                </>
                 </div>
               ):(<></>)
               }
