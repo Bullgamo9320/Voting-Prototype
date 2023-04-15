@@ -54,6 +54,31 @@ const connectWallet = async () => {
     console.log(`account: ${accounts[0]}`)
     setAccount(accounts[0])
 
+    const provider = new ethers.providers.Web3Provider(ethereum);
+    const signer = provider.getSigner();
+    const votingContract = new ethers.Contract(VotingAddress, Voting.abi, signer);
+
+    try {
+      const scores = await votingContract.getVoterScores();
+      setGetVoterScores(scores);
+    } catch (err) {
+      setGetVoterScores([]);
+      console.error(err);
+    }
+
+    const numOfVoters = await votingContract.numOfVoters();
+    console.log(`numOfVoters: ${numOfVoters}`);
+    setNumOfVoters(numOfVoters);
+
+    const Owner = await votingContract.owner();
+    console.log(`owner: ${Owner}`);
+    setOwner(Owner);
+
+    const VoteEnded = await votingContract.voteEnded();
+    console.log(`VoteEnded: ${VoteEnded}`);
+    setVoteEnded(VoteEnded);
+
+
     ethereum.on('accountsChanged', checkAccountChanged);
     ethereum.on('chainChanged', checkChainId);
   } catch (err) {
@@ -109,7 +134,33 @@ const checkAccountChanged = () => {
           onClick={connectWallet}>
           Metamaskを接続
           </button>
-        ) : (<></>)}
+        ) : (
+          chainId ? (
+            <div >
+              <div className='px-2 py-2 bg-transparent'>
+                <span className="flex flex-col items-left font-semibold">投票者数：{`${numOfVoters}`}</span>
+                <span className="flex flex-col items-left font-semibold">投票開始状況：{`${VoteEnded}`}</span>
+                <span className="flex flex-col items-left font-semibold">オーナー：{owner}</span>
+              </div>
+              <div className='px-2 py-2 mb-2 bg-white border border-gray-400'>
+                <span className="flex flex-col items-left font-semibold">アドレス：{account}</span>
+                {getVoterScores.length > 0 ? (
+                  <span className="flex flex-col items-left font-semibold">
+                    あなたの投票結果：{`${getVoterScores}`}
+                  </span> 
+                ) : ( 
+                  <span className="flex flex-col items-left font-semibold">
+                    あなたの投票結果：未投票
+                  </span>
+                )
+                }
+              </div>
+            </div>
+          ) : (
+            <div className='flex flex-col justify-center items-center mb-20 font-bold text-2xl gap-y-3'>
+              <div>Mumbaiに接続してください</div>
+            </div>)
+        )}
       </div>
     </div>
   )
