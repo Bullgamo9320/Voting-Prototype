@@ -23,12 +23,14 @@ export default function Home() {
   const mumbaiId = "0x13881";
   const zeroAddress = "0x0000000000000000000000000000000000000000";
 
+  
   const checkMetaMaskInstalled = async () => {
     const { ethereum } = window;
     if (!ethereum) {
       alert('MetaMaskをインストールしてください！');
     }
   }
+
   const checkChainId = async () => {
     const { ethereum } = window;
     if(ethereum) {
@@ -78,6 +80,7 @@ const connectWallet = async () => {
     console.log(`VoteEnded: ${VoteEnded}`);
     setVoteEnded(VoteEnded);
 
+    
 
     ethereum.on('accountsChanged', checkAccountChanged);
     ethereum.on('chainChanged', checkChainId);
@@ -85,6 +88,9 @@ const connectWallet = async () => {
     console.log(err)
   }
 }
+
+
+
 
 const checkAccountChanged = () => {
   setAccount('');
@@ -96,8 +102,8 @@ const checkAccountChanged = () => {
   setForOwnerGet([]);
   setGetVoterScores([]);
   setVoteEnded(false);
-
 }
+
 
 
 
@@ -137,6 +143,16 @@ const checkAccountChanged = () => {
         ) : (
           chainId ? (
             <div >
+              {account.toLowerCase() === owner.toLowerCase() ? (
+                <div className='px-2 py-2 bg-transparent'>
+                  <span className="flex flex-col items-left font-semibold">あなたはオーナーです</span>
+                  <button 
+                    className="w-2/8 mx-2 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
+                    onClick={() => setVoteEnded(true)}
+                  >投票終了</button>
+                </div>
+              ):(<></>)
+              }
               <div className='px-2 py-2 bg-transparent'>
                 <span className="flex flex-col items-left font-semibold">投票者数：{`${numOfVoters}`}</span>
                 <span className="flex flex-col items-left font-semibold">投票開始状況：{`${VoteEnded}`}</span>
@@ -155,6 +171,15 @@ const checkAccountChanged = () => {
                 )
                 }
               </div>
+              {getVoterScores.length == 0 ? (
+              <>
+                <form className="flex pl-1 py-1 mb-1 bg-white border border-gray-400">
+                  <button
+                    className="w-2/12 mx-2 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
+                    onClick={''}
+                  >投票</button>
+                </form>
+              </>) : (<></>)}
             </div>
           ) : (
             <div className='flex flex-col justify-center items-center mb-20 font-bold text-2xl gap-y-3'>
