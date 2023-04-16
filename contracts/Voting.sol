@@ -8,14 +8,14 @@
  *
  * - <4/12　更新>
  * - 全員が棄権した場合にエラーが出ていたのでその修正
- * - 危険が多すぎるなどして優勝者が決められない場合はエラーを返すようにしている
+ * - 棄権が多すぎるなどして優勝者が決められない場合はエラーを返すようにしている
  * 
  * - <残りやること>
  * --- uintとintを揃える。型がぐちゃぐちゃ(searchとか特に)
  * --- 様々なパターンでの確認
  */
 
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.19;
 
 contract Voting {
 
@@ -256,6 +256,33 @@ contract Voting {
         str = string(bstr);
     }
 
+    function ArrCalc(uint[] memory Array) public pure returns (uint) {
+    uint result = 0;
+    if (Array.length % 2 == 0) {
+        uint middle = Array.length/2 - 1;
+        for(uint i = 0; i < Array.length; i++) {
+            if (i <= middle) {
+                result += Array[i] * (10 ** ((Array.length - 1) - ((middle - i) * 2)));
+            }
+            else{
+                result += Array[i] * (10 ** ((Array.length - 2) - ((i - middle - 1) * 2)));
+            }
+        }
+    } else {
+        uint middle = (Array.length - 1) / 2;
+        for(uint i = 0; i < Array.length; i++) {
+            if (i < middle) {
+                result += Array[i] * (10 ** ((Array.length - 1) - ((middle - i - 1) * 2) - 1 ));
+            }
+            else{
+                result += Array[i] * (10 ** (Array.length - ((i - middle) * 2) - 1 ));
+            }
+        }
+    }
+    return result;
+}
+
+
     /// @dev 全体の結果を見る
     function getResults() public view returns (string[] memory names, uint[] memory medians, uint[] memory ranks) {
         uint[] memory tempMedians = new uint[](candidates.length);
@@ -281,29 +308,10 @@ contract Voting {
                 if (tempMedians[j] > tempMedians[i]) {
                     rank++;
                 }
-                
-                else if (tempMedians[j] == tempMedians[i]){
-                    /// @dev iについては「中央値よりも大きな値」が「中央値より小さな値」よりも少なく、jはその逆の場合。iの順位が下がる
-                    if ((greaterMed(candidates[i].score) < lessMed(candidates[i].score)) && (greaterMed(candidates[j].score) > lessMed(candidates[j].score))) {
+                else if (tempMedians[i] == tempMedians[j]) {
+                    if (ArrCalc(candidates[j].score) > ArrCalc(candidates[i].score)) {
                         rank++;
                     }
-                    /// @dev　上の逆については、順位は変える必要ない
-                    else if ((greaterMed(candidates[i].score) > lessMed(candidates[i].score)) && (greaterMed(candidates[j].score) < lessMed(candidates[j].score))) {
-
-                    }
-                    /// @dev　どっちも「中央値よりも大きな値」が「中央値より小さな値」よりも少ない場合、中央値よりも小さい評価が少ない方が上位
-                    else if ((greaterMed(candidates[i].score) <= lessMed(candidates[i].score)) && (greaterMed(candidates[j].score) <= lessMed(candidates[j].score))) {
-                        if (Less(candidates[i].score) > Less(candidates[j].score)){
-                            rank++;
-                        }
-                    }
-                    /// @dev 上の逆
-                    else if ((greaterMed(candidates[i].score) > lessMed(candidates[i].score)) && (greaterMed(candidates[j].score) > lessMed(candidates[j].score))) {
-                        if (Greater(candidates[i].score) < Greater(candidates[j].score)){
-                            rank++;
-                        }
-                    }
-                    else{}
                 }
                 
             }
@@ -349,26 +357,9 @@ contract Voting {
                     rank++;
                 }
                 
-                else if (medians[j] == medians[i]){
-                    /// @dev iについては「中央値よりも大きな値」が「中央値より小さな値」よりも少なく、jはその逆の場合。iの順位が下がる
-                    if ((greaterMed(candidates[i].score) < lessMed(candidates[i].score)) && (greaterMed(candidates[j].score) > lessMed(candidates[j].score))) {
+                else if (medians[i] == medians[j]) {
+                    if (ArrCalc(candidates[j].score) > ArrCalc(candidates[i].score)) {
                         rank++;
-                    }
-                    /// @dev　上の逆については、順位は変える必要ない
-                    else if ((greaterMed(candidates[i].score) > lessMed(candidates[i].score)) && (greaterMed(candidates[j].score) < lessMed(candidates[j].score))) {
-
-                    }
-                    /// @dev　どっちも「中央値よりも大きな値」が「中央値より小さな値」よりも少ない場合、中央値よりも小さい評価が少ない方が上位
-                    else if ((greaterMed(candidates[i].score) <= lessMed(candidates[i].score)) && (greaterMed(candidates[j].score) <= lessMed(candidates[j].score))) {
-                        if (Less(candidates[i].score) > Less(candidates[j].score)){
-                            rank++;
-                        }
-                    }
-                    /// @dev 上の逆
-                    else if ((greaterMed(candidates[i].score) > lessMed(candidates[i].score)) && (greaterMed(candidates[j].score) > lessMed(candidates[j].score))) {
-                        if (Greater(candidates[i].score) < Greater(candidates[j].score)){
-                            rank++;
-                        }
                     }
                 }
                 
