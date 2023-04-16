@@ -17,7 +17,8 @@ export default function Home() {
   const [owner, setOwner] = useState('')
   const [result, setResult] = useState({names: '', medians: '', ranks: ''});
   const [individualResult, setIndividualResult] = useState({ MedianValue: '', Rank: '', ScoreGet: ''});
-  const [getVoterScores, setGetVoterScores] = useState([])
+  const [getVoterScores, setGetVoterScores] = useState('');
+  const [candidate, setCandidate] = useState('');
   const [voterAddress, setVoterAddress] = useState('');
   const [voterScores, setVoterScores] = useState('');
   const [VoteEnded, setVoteEnded] = useState(false);
@@ -66,6 +67,7 @@ const connectWallet = async () => {
     const signer = provider.getSigner();
     const votingContract = new ethers.Contract(VotingAddress, Voting.abi, signer);
 
+
     try {
       const scores = await votingContract.getVoterScores();
       setGetVoterScores(scores);
@@ -105,13 +107,14 @@ const checkAccountChanged = () => {
   setIndividualResult({ MedianValue: '', Rank: '', ScoreGet: ''});
   setVoterAddress('');
   setVoterScores('');
-  setGetVoterScores([]);
+  setGetVoterScores('');
   setVoteEnded(false);
   setTempvote([0,0,0]);
   setVote([]);
   setActiveButtonIndex1(-1);
   setActiveButtonIndex2(-1);
   setActiveButtonIndex3(-1);
+  setCandidate('');
 }
 
 
@@ -139,6 +142,36 @@ const handleResultDisplay = async (event) => {
   console.log(`his/her vote result: ${getOtherScores}`);
   setVoterScores(getOtherScores); // 結果を状態として保存
 };
+
+const handleCandidate = (e) => {
+  setCandidate(e.target.value);
+}
+
+const IndividualLive = async (event) => {
+  event.preventDefault();
+
+  const { ethereum } = window;
+  const accounts = await ethereum.request({
+    method: 'eth_requestAccounts'
+  });
+  console.log(`account: ${accounts[0]}`)
+  setAccount(accounts[0])
+
+  const provider = new ethers.providers.Web3Provider(ethereum);
+  const signer = provider.getSigner();
+  const votingContract = new ethers.Contract(VotingAddress, Voting.abi, signer);
+
+  if (candidate == "Alice" || candidate == "Bob" || candidate =="Chris"){
+    const individualResult = await votingContract.getIndividualResults(candidate);
+    setIndividualResult(individualResult);
+  }
+  else{
+    alert('そのような名前の候補者はいません。もう一度確認してください。');
+    setIndividualResult({ MedianValue: '', Rank: '', ScoreGet: ''});
+  }
+}
+
+
 
 const handleButtonClick1 = (value: number, index: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
   event.preventDefault();
@@ -180,6 +213,24 @@ const voting = async (event) => {
 
 }
 
+const endvote = async (event) => {
+  event.preventDefault();
+  const { ethereum } = window;
+  const accounts = await ethereum.request({
+    method: 'eth_requestAccounts'
+  });
+  console.log(`account: ${accounts[0]}`)
+  setAccount(accounts[0])
+
+  const provider = new ethers.providers.Web3Provider(ethereum);
+  const signer = provider.getSigner();
+  const votingContract = new ethers.Contract(VotingAddress, Voting.abi, signer);
+
+  const END = await votingContract.endVoting();
+  setVoteEnded(true);
+  await END.wait();
+}
+
 const live = async (event) => {
   event.preventDefault();
   const { ethereum } = window;
@@ -197,6 +248,24 @@ const live = async (event) => {
   console.log(`name: ${result}`);
   setResult(result);
 
+}
+
+const GetWinner = async (event) => {
+  event.preventDefault();
+  const { ethereum } = window;
+  const accounts = await ethereum.request({
+    method: 'eth_requestAccounts'
+  });
+  console.log(`account: ${accounts[0]}`)
+  setAccount(accounts[0])
+
+  const provider = new ethers.providers.Web3Provider(ethereum);
+  const signer = provider.getSigner();
+  const votingContract = new ethers.Contract(VotingAddress, Voting.abi, signer);
+
+  const winner = await votingContract.getWinner();
+  console.log(`winner: ${winner}`);
+  setWinner(winner);
 }
 
 
@@ -242,7 +311,7 @@ const live = async (event) => {
                   <span className="flex flex-col items-left font-semibold">あなたはオーナーです</span>
                   <button 
                     className="w-2/8 mx-2 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
-                    onClick={() => setVoteEnded(true)}
+                    onClick={endvote}
                   >投票終了</button>
                   
                 <>
@@ -261,27 +330,52 @@ const live = async (event) => {
                     >
                       結果表示
                     </button>
-                      {voterScores !== '' ? (
+                    {voterScores !== '' ? (
+                      <div>
                         <span className="flex flex-col items-left font-semibold">
-                        his/her vote: {`${voterScores}`}
+                        Alice:{`${voterScores[0].toString() === "1" ? "やめた方がいい" : voterScores[0].toString() === "2" ? "まあいいんじゃない" : voterScores[0].toString() === "3" ? "興味あり" : voterScores[0].toString() === "4" ? "大好き" : voterScores[0].toString() === "100" ? "棄権" : ""}`}
                         </span>
-                      ) : (<></>)} 
+                        <span className="flex flex-col items-left font-semibold">
+                          Bob:{`${voterScores[1].toString() === "1" ? "やめた方がいい" : voterScores[1].toString() === "2" ? "まあいいんじゃない" : voterScores[1].toString() === "3" ? "興味あり" : voterScores[1].toString() === "4" ? "大好き" : voterScores[1].toString() === "100" ? "棄権" : ""}`}
+                        </span>
+                        <span className="flex flex-col items-left font-semibold">
+                          Chris:{`${voterScores[2].toString() === "1" ? "やめた方がいい" : voterScores[2].toString() === "2" ? "まあいいんじゃない" : voterScores[2].toString() === "3" ? "興味あり" : voterScores[2].toString() === "4" ? "大好き" : voterScores[2].toString() === "100" ? "棄権" : ""}`}
+                        </span>
+
+                      </div>
+                      ) : (<></>)}
                   </div>
                 </>
                 </div>
               ):(<></>)
               }
               <div className='px-2 py-2 bg-transparent'>
+                {VoteEnded == false ? (
+                  <span className="flex flex-col mb-5 items-left text-2xl font-semibold">
+                    投票受付中
+                  </span>
+                ) : (
+                  <span className="flex flex-col mb-5 items-left text-4xl font-semibold">
+                    投票終了
+                  </span>
+                )}
                 <span className="flex flex-col items-left font-semibold">投票者数：{`${numOfVoters}`}</span>
-                <span className="flex flex-col items-left font-semibold">投票開始状況：{`${VoteEnded}`}</span>
                 <span className="flex flex-col items-left font-semibold">オーナー：{owner}</span>
               </div>
               <div className='px-2 py-2 mb-2 bg-white border border-gray-400'>
-                <span className="flex flex-col items-left font-semibold">アドレス：{account}</span>
+                <span className="flex flex-col items-left font-semibold">あなたのアドレス：{account}</span>
                 {getVoterScores.length > 0 ? (
-                  <span className="flex flex-col items-left font-semibold">
-                    あなたの投票結果：{`${getVoterScores}`}
-                  </span> 
+                  <div>
+                    <span className="flex flex-col items-left font-semibold">
+                      あなたの投票結果：Alice:{`${getVoterScores[0].toString() === "1" ? "やめた方がいい" : getVoterScores[0].toString() === "2" ? "まあいいんじゃない" : getVoterScores[0].toString() === "3" ? "興味あり" : getVoterScores[0].toString() === "4" ? "大好き" : getVoterScores[0].toString() === "100" ? "棄権" : ""}`}
+                    </span>
+                    <span className="flex flex-col items-left font-semibold">
+                      　　　　　　　　　Bob:{getVoterScores[1].toString() === "1" ? "やめた方がいい" : getVoterScores[1].toString() === "2" ? "まあいいんじゃない" : getVoterScores[1].toString() === "3" ? "興味あり" : getVoterScores[1].toString() === "4" ? "大好き" : getVoterScores[1].toString() === "100" ? "棄権" : ""}
+                    </span>
+                    <span className="flex flex-col items-left font-semibold">
+                      　　　　　　　　　Chris:{`${getVoterScores[2].toString() === "1" ? "やめた方がいい" : getVoterScores[2].toString() === "2" ? "まあいいんじゃない" : getVoterScores[2].toString() === "3" ? "興味あり" : getVoterScores[2].toString() === "4" ? "大好き" : getVoterScores[2].toString() === "100" ? "棄権" : ""}`}
+                    </span>
+                  </div>
                 ) : ( 
                   <span className="flex flex-col items-left font-semibold">
                     あなたの投票結果：未投票
@@ -289,38 +383,38 @@ const live = async (event) => {
                 )
                 }
               </div>
-              {getVoterScores.length == 0 ? (
+              {getVoterScores.length == 0 && VoteEnded === false ? (
               <>
                 <form className="flex pl-1 pr-1 py-1 mb-1 bg-white border border-gray-400">
                   <div className= "w-full flex justify-between flex-col">
                     <span className="pb-4">Alice：〇〇党。こんにちは。私の名前はAliceです。</span>
                     <div className= "w-full flex justify-between" >
                       <button
-                        className={`w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex1 === 4 ? "bg-blue-500 text-white" : ""}`}
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex1 === 4 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick1(4, 0,event)}
                       >
                         大好き
                       </button>
                       <button
-                        className={`w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex1 === 3 ? "bg-blue-500 text-white" : ""}`}
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex1 === 3 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick1(3, 0,event)}
                       >
                         興味あり
                       </button>
                       <button
-                        className={`w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex1 === 2 ? "bg-blue-500 text-white" : ""}`}
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex1 === 2 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick1(2, 0,event)}
                       >
                         まあいいんじゃない
                       </button>
                       <button
-                        className={`w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex1 === 1 ? "bg-blue-500 text-white" : ""}`}
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex1 === 1 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick1(1, 0,event)}
                       >
                         やめた方がいい
                       </button>
                       <button
-                        className={`w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex1 === 100 ? "bg-blue-500 text-white" : ""}`}
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex1 === 100 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick1(100, 0,event)}
                       >
                         棄権する
@@ -334,31 +428,31 @@ const live = async (event) => {
                     <span className="pb-4">Bob：〇〇党。こんにちは。私の名前はBobです。</span>
                     <div className= "w-full flex justify-between" >
                       <button
-                        className={`w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex2 === 4 ? "bg-blue-500 text-white" : ""}`}
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex2 === 4 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick2(4, 1,event)}
                       >
                         大好き
                       </button>
                       <button
-                        className={`w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex2 === 3 ? "bg-blue-500 text-white" : ""}`}
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex2 === 3 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick2(3, 1, event)}
                       >
                         興味あり
                       </button>
                       <button
-                        className={`w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex2 === 2 ? "bg-blue-500 text-white" : ""}`}
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex2 === 2 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick2(2, 1,event)}
                       >
                         まあいいんじゃない
                       </button>
                       <button
-                        className={`w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex2 === 1 ? "bg-blue-500 text-white" : ""}`}
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex2 === 1 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick2(1, 1,event)}
                       >
                         やめた方がいい
                       </button>
                       <button
-                        className={`w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex2 === 100 ? "bg-blue-500 text-white" : ""}`}
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex2 === 100 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick2(100, 1,event)}
                       >
                         棄権する
@@ -372,31 +466,31 @@ const live = async (event) => {
                     <span className="pb-4">Chris：〇〇党。こんにちは。私の名前はChrisです。</span>
                     <div className= "w-full flex justify-between" >
                       <button
-                        className={`w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex3 === 4 ? "bg-blue-500 text-white" : ""}`}
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex3 === 4 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick3(4, 2,event)}
                       >
                         大好き
                       </button>
                       <button
-                        className={`w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex3 === 3 ? "bg-blue-500 text-white" : ""}`}
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex3 === 3 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick3(3, 2,event)}
                       >
                         興味あり
                       </button>
                       <button
-                        className={`w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex3 === 2 ? "bg-blue-500 text-white" : ""}`}
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex3 === 2 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick3(2, 2,event)}
                       >
                         まあいいんじゃない
                       </button>
                       <button
-                        className={`w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex3 === 1 ? "bg-blue-500 text-white" : ""}`}
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex3 === 1 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick3(1, 2,event)}
                       >
                         やめた方がいい
                       </button>
                       <button
-                        className={`w-2/12 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex3 === 100 ? "bg-blue-500 text-white" : ""}`}
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex3 === 100 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick3(100, 2,event)}
                       >
                         棄権する
@@ -416,23 +510,67 @@ const live = async (event) => {
               </>) : (
               <div>
                 <div className="flex flex-col mt-20 items-left text-2xl font-semibold">投票結果速報</div>
+                <button 
+                  className="w-2/8 mx-2 my-3 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
+                  onClick={live}
+                >速報値</button>
+                {result.names.length > 0 && result.medians.length > 0 && result.ranks.length > 0 ? (
+                  <div className="px-2 py-2 mb-2 bg-white border border-gray-400">
+                      <span className="flex flex-col items-left font-semibold">
+                        Name: {result.names[0].toString()}, Median: {result.medians[0].toString()}, Rank: {result.ranks[0].toString()}{Number(result.ranks[0]) === 1 ? 'st' : Number(result.ranks[0]) === 2 ? 'nd' : Number(result.ranks[0]) === 3 ? 'rd' : 'th'}
+                      </span>
+                      <span className="flex flex-col items-left font-semibold">
+                        Name: {result.names[1].toString()}, Median: {result.medians[1].toString()}, Rank: {result.ranks[1].toString()}{Number(result.ranks[1]) === 1 ? 'st' : Number(result.ranks[1]) === 2 ? 'nd' : Number(result.ranks[1]) === 3 ? 'rd' : 'th'}
+                      </span>
+                      <span className="flex flex-col items-left font-semibold">
+                        Name: {result.names[2].toString()}, Median: {result.medians[2].toString()}, Rank: {result.ranks[2].toString()}{Number(result.ranks[2]) === 1 ? 'st' : Number(result.ranks[2]) === 2 ? 'nd' : Number(result.ranks[2]) === 3 ? 'rd' : 'th'}
+                      </span>
+                  </div>
+                ) : (<></>)}
+
+                <div className="flex flex-col mt-10 items-left text-2xl font-semibold">投票結果速報(候補者別)</div>
+                <div className="mb-10">
+                    <input
+                      type="text"
+                      className="w-7/12 ml-2 text-center border border-gray-400"
+                      name="Candidate"
+                      placeholder="候補者名を入力"
+                      onChange={handleCandidate}
+                      value={candidate} // アドレスの状態を反映
+                    />
+                    <button
+                      className="w-2/8 mx-2 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
+                      onClick={IndividualLive} // ボタンクリック時に結果を取得
+                    >
+                      結果表示
+                    </button>
+                    {candidate === '' ? (
+                      <></>
+                    ) : (
+                    <div>
+                      {candidate === "Alice" || candidate === "Bob" || candidate === "Chris" ? (
+                        <span className="flex flex-col mt-2 mb-5 items-left font-semibold">
+                          Median: {individualResult.MedianValue.toString()}, Rank: {individualResult.Rank.toString()}{Number(result.ranks[0]) === 1 ? 'st' : Number(result.ranks[0]) === 2 ? 'nd' : Number(result.ranks[0]) === 3 ? 'rd' : 'th'}, ScoreGet: {individualResult.ScoreGet.toString()}
+                        </span>
+                      ) : (
+                        <span className="flex flex-col mt-2 mb-5 items-left font-semibold">
+                          候補者の名前が違います
+                        </span>)}
+                    </div>
+                    )}
+                </div>
+
+                {VoteEnded === true ? (
+                  <div>
                   <button 
-                    className="w-2/8 mx-2 my-3 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
-                    onClick={live}
-                  >速報値</button>
-                    {result.names.length > 0 && result.medians.length > 0 && result.ranks.length > 0 ? (
-                      <div className="px-2 py-2 mb-2 bg-white border border-gray-400">
-                          <span className="flex flex-col items-left font-semibold">
-                            Name: {result.names[0].toString()}, Median: {result.medians[0].toString()}, Rank: {result.ranks[0].toString()}{Number(result.ranks[0]) === 1 ? 'st' : Number(result.ranks[0]) === 2 ? 'nd' : Number(result.ranks[0]) === 3 ? 'rd': 'th'}
-                          </span>
-                          <span className="flex flex-col items-left font-semibold">
-                            Name: {result.names[1].toString()}, Median: {result.medians[1].toString()}, Rank: {result.ranks[1].toString()}{Number(result.ranks[1]) === 1 ? 'st' : Number(result.ranks[1]) === 2 ? 'nd' : Number(result.ranks[0]) === 3 ? 'rd': 'th'}
-                          </span>
-                          <span className="flex flex-col items-left font-semibold">
-                            Name: {result.names[2].toString()}, Median: {result.medians[2].toString()}, Rank: {result.ranks[2].toString()}{Number(result.ranks[2]) === 1 ? 'st' : Number(result.ranks[2]) === 2 ? 'nd' : Number(result.ranks[0]) === 3 ? 'rd': 'th'}
-                          </span>
-                      </div>
-                    ) : (<></>)}
+                    className="w-2/8 mx-2 mb-5 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
+                    onClick={GetWinner}
+                  >優勝者</button>
+                  {winner !== '' ? (
+                    <span>Winner: {`${winner}`} </span>
+                  ):(<></>)}
+                  </div>
+                ) : (<></>)}
 
               </div>)}
             </div>
