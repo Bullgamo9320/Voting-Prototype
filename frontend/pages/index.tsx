@@ -566,11 +566,11 @@ const GetWinner = async (event) => {
                           <span className="flex flex-col mt-2 mb-5 items-left font-semibold">
                             Median: {individualResult.MedianValue.toString()}
                           </span>
-                          <span>
-                            Rank: {individualResult.Rank.toString()}{Number(result.ranks[0]) === 1 ? 'st' : Number(result.ranks[0]) === 2 ? 'nd' : Number(result.ranks[0]) === 3 ? 'rd' : 'th'}
+                          <span className="flex flex-col mt-2 mb-5 items-left font-semibold">
+                            Rank: {individualResult.Rank.toString()}{individualResult.Rank.toString() === "1" ? 'st' : individualResult.Rank.toString() === "2" ? 'nd' : individualResult.Rank.toString() === "3" ? 'rd' : 'th'}
                           </span>
-                          <span>
-                            ScoreGet: 大好き{individualResult.ScoreGet[0].toString()}％、興味あり{individualResult.ScoreGet[1].toString()}％、まあいいんじゃない{individualResult.ScoreGet[2].toString()}％、やめた方がいい{individualResult.ScoreGet[3].toString()}％
+                          <span className="flex flex-col mt-2 mb-5 items-left font-semibold">
+                            ScoreGet: 大好き{individualResult.ScoreGet.toString().split(',')[0]}％、興味あり{individualResult.ScoreGet.toString().split(',')[1]}％、まあいいんじゃない{individualResult.ScoreGet.toString().split(',')[2]}％、やめた方がいい{individualResult.ScoreGet.toString().split(',')[3]}％
                           </span>
                         </div>
                       ) : (
