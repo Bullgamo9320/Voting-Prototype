@@ -282,7 +282,7 @@ const GetWinner = async (event) => {
         <link rel="icon" href="/favicon.ico"/>
       </Head>
       <h2 className={"text-6xl font-bold my-12 mt-8"}>
-        投票アプリへようこそ
+        Voting DApp
       </h2>
       <div className='mt-8 mb-16 hover:rotate-180 hover:scale-105 transition duration-700 ease-in-out'>
         <svg
