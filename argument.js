@@ -1,6 +1,6 @@
 
     module.exports = [
         "[Alice,Bob,Chris]",
-        "0xD94D387b926B92cDf45791e004ca2184eB7C0a73"
+        "0xB1E5A483CAF71E85462e2507001e32cd6988D91D"
     ]
     

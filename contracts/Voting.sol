@@ -15,7 +15,7 @@
  * --- 様々なパターンでの確認
  */
 
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.19;
 
 contract Voting {
 
@@ -265,31 +265,31 @@ contract Voting {
         str = string(bstr);
     }
 
-    function ArrCalc(uint[] memory Array) internal pure returns (uint) {
-    uint result = 0;
-    if (Array.length % 2 == 0) {
-        uint middle = Array.length/2 - 1;
-        for(uint i = 0; i < Array.length; i++) {
-            if (i <= middle) {
-                result += Array[i] * (10 ** ((Array.length - 1) - ((middle - i) * 2)));
+    function ArrCalc(uint[] memory Array) public pure returns (uint) {
+        uint result = 0;
+        if (Array.length % 2 == 0) {
+            uint middle = Array.length/2 - 1;
+            for(uint i = 0; i < Array.length; i++) {
+                if (i <= middle) {
+                    result += Array[i] * (10 ** ((Array.length - 1) - ((middle - i) * 2)));
+                }
+                else{
+                    result += Array[i] * (10 ** ((Array.length - 2) - ((i - middle - 1) * 2)));
+                }
             }
-            else{
-                result += Array[i] * (10 ** ((Array.length - 2) - ((i - middle - 1) * 2)));
+        } else {
+            uint middle = (Array.length - 1) / 2;
+            for(uint i = 0; i < Array.length; i++) {
+                if (i < middle) {
+                    result += Array[i] * (10 ** ((Array.length - 1) - ((middle - i - 1) * 2) - 1 ));
+                }
+                else{
+                    result += Array[i] * (10 ** (Array.length - ((i - middle) * 2) - 1 ));
+                }
             }
         }
-    } else {
-        uint middle = (Array.length - 1) / 2;
-        for(uint i = 0; i < Array.length; i++) {
-            if (i < middle) {
-                result += Array[i] * (10 ** ((Array.length - 1) - ((middle - i - 1) * 2) - 1 ));
-            }
-            else{
-                result += Array[i] * (10 ** (Array.length - ((i - middle) * 2) - 1 ));
-            }
-        }
+        return result;
     }
-    return result;
-}
 
 
     /// @dev 全体の結果を見る
@@ -367,7 +367,7 @@ contract Voting {
                 }
                 
                 else if (medians[i] == medians[j]) {
-                    if (ArrCalc(candidates[j].score) > ArrCalc(candidates[i].score)) {
+                    if ((ArrCalc(candidates[j].score)*(10**(numOfVoters - candidates[j].score.length))) < (ArrCalc(candidates[i].score))*(10**(numOfVoters - candidates[i].score.length))) {
                         rank++;
                     }
                 }
@@ -393,7 +393,7 @@ contract Voting {
         //4点の割合
         uint[] memory Percentages = new uint[](4);
         Percentages[0] = searchUint(candidates[CandidateNum].score, 4);
-        Percentages[1] =  searchUint(candidates[CandidateNum].score, 3);
+        Percentages[1] = searchUint(candidates[CandidateNum].score, 3);
         Percentages[2] = searchUint(candidates[CandidateNum].score, 2);
         Percentages[3] = searchUint(candidates[CandidateNum].score, 1);
 
