@@ -72,7 +72,7 @@ const connectWallet = async () => {
       const scores = await votingContract.getVoterScores();
       setGetVoterScores(scores);
     } catch (err) {
-      setGetVoterScores([]);
+      setGetVoterScores('');
       console.error(err);
     }
 
@@ -138,9 +138,14 @@ const handleResultDisplay = async (event) => {
   const signer = provider.getSigner();
   const votingContract = new ethers.Contract(VotingAddress, Voting.abi, signer);
 
-  const getOtherScores = await votingContract.ForOwnerGetVoterScores(voterAddress); // アドレスを引数に渡す
-  console.log(`his/her vote result: ${getOtherScores}`);
-  setVoterScores(getOtherScores); // 結果を状態として保存
+  try{
+    const getOtherScores = await votingContract.ForOwnerGetVoterScores(voterAddress); // アドレスを引数に渡す
+    console.log(`his/her vote result: ${getOtherScores}`);
+    setVoterScores(getOtherScores); // 結果を状態として保存
+  } catch (err) {
+    console.log(err)
+    setVoterScores('no')
+  }
 };
 
 const handleCandidate = (e) => {
@@ -330,10 +335,10 @@ const GetWinner = async (event) => {
                     >
                       結果表示
                     </button>
-                    {voterScores !== '' ? (
+                    {voterScores !== "no" && voterScores !== '' ? (
                       <div>
                         <span className="flex flex-col items-left font-semibold">
-                        Alice:{`${voterScores[0].toString() === "1" ? "やめた方がいい" : voterScores[0].toString() === "2" ? "まあいいんじゃない" : voterScores[0].toString() === "3" ? "興味あり" : voterScores[0].toString() === "4" ? "大好き" : voterScores[0].toString() === "100" ? "棄権" : ""}`}
+                          Alice:{`${voterScores[0].toString() === "1" ? "やめた方がいい" : voterScores[0].toString() === "2" ? "まあいいんじゃない" : voterScores[0].toString() === "3" ? "興味あり" : voterScores[0].toString() === "4" ? "大好き" : voterScores[0].toString() === "100" ? "棄権" : ""}`}
                         </span>
                         <span className="flex flex-col items-left font-semibold">
                           Bob:{`${voterScores[1].toString() === "1" ? "やめた方がいい" : voterScores[1].toString() === "2" ? "まあいいんじゃない" : voterScores[1].toString() === "3" ? "興味あり" : voterScores[1].toString() === "4" ? "大好き" : voterScores[1].toString() === "100" ? "棄権" : ""}`}
@@ -341,9 +346,17 @@ const GetWinner = async (event) => {
                         <span className="flex flex-col items-left font-semibold">
                           Chris:{`${voterScores[2].toString() === "1" ? "やめた方がいい" : voterScores[2].toString() === "2" ? "まあいいんじゃない" : voterScores[2].toString() === "3" ? "興味あり" : voterScores[2].toString() === "4" ? "大好き" : voterScores[2].toString() === "100" ? "棄権" : ""}`}
                         </span>
-
                       </div>
-                      ) : (<></>)}
+                    ) : (
+                      <div>
+                        {voterScores === "no" && (
+                          <span className="flex flex-col items-left font-semibold">
+                            未投票
+                          </span>
+                        )}
+                      </div>
+                    )}
+
                   </div>
                 </>
                 </div>
@@ -549,9 +562,17 @@ const GetWinner = async (event) => {
                     ) : (
                     <div>
                       {candidate === "Alice" || candidate === "Bob" || candidate === "Chris" ? (
-                        <span className="flex flex-col mt-2 mb-5 items-left font-semibold">
-                          Median: {individualResult.MedianValue.toString()}, Rank: {individualResult.Rank.toString()}{Number(result.ranks[0]) === 1 ? 'st' : Number(result.ranks[0]) === 2 ? 'nd' : Number(result.ranks[0]) === 3 ? 'rd' : 'th'}, ScoreGet: {individualResult.ScoreGet.toString()}
-                        </span>
+                        <div>
+                          <span className="flex flex-col mt-2 mb-5 items-left font-semibold">
+                            Median: {individualResult.MedianValue.toString()}
+                          </span>
+                          <span>
+                            Rank: {individualResult.Rank.toString()}{Number(result.ranks[0]) === 1 ? 'st' : Number(result.ranks[0]) === 2 ? 'nd' : Number(result.ranks[0]) === 3 ? 'rd' : 'th'}
+                          </span>
+                          <span>
+                            ScoreGet: 大好き{individualResult.ScoreGet[0].toString()}％、興味あり{individualResult.ScoreGet[1].toString()}％、まあいいんじゃない{individualResult.ScoreGet[2].toString()}％、やめた方がいい{individualResult.ScoreGet[3].toString()}％
+                          </span>
+                        </div>
                       ) : (
                         <span className="flex flex-col mt-2 mb-5 items-left font-semibold">
                           候補者の名前が違います

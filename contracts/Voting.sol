@@ -6,9 +6,9 @@
  * - 実際にテストとして動かしてみるのにgiveRights functionは邪魔なのでコメントアウトしています
  * - 得た棄権以外の票数が、特定の値以下の場合は順位を10000位とする
  *
- * - <4/12　更新>
- * - 全員が棄権した場合にエラーが出ていたのでその修正
- * - 棄権が多すぎるなどして優勝者が決められない場合はエラーを返すようにしている
+ * - <4/16更新>
+ * - 個人の結果を、パーセンテージで表す
+ * - [1,2]なら1の割合は50%。3は0%など
  * 
  * - <残りやること>
  * --- uintとintを揃える。型がぐちゃぐちゃ(searchとか特に)
@@ -102,7 +102,16 @@ contract Voting {
         return uintArr.length;
     }
 
-    
+    function searchUint(uint[] memory Arr, uint num) internal pure returns (uint) {
+        uint count = 0;
+        for (uint i = 0; i < Arr.length; i++) {
+            if (Arr[i] == num ) {
+                count++;
+            }
+        }
+        //%で返す
+        return count*100/Arr.length;
+    }    
 
 
     /// @dev 2つのstringが同じかどうかを見比べる。単純比較はできないので一旦バイト列に変換
@@ -256,7 +265,7 @@ contract Voting {
         str = string(bstr);
     }
 
-    function ArrCalc(uint[] memory Array) public pure returns (uint) {
+    function ArrCalc(uint[] memory Array) internal pure returns (uint) {
     uint result = 0;
     if (Array.length % 2 == 0) {
         uint middle = Array.length/2 - 1;
@@ -379,7 +388,16 @@ contract Voting {
 
         MedianValue = uint2str(medians[CandidateNum]);
         Rank = ranks[CandidateNum];
-        ScoreGet = candidates[CandidateNum].score;     
+        //ScoreGet = candidates[CandidateNum].score;
+
+        //4点の割合
+        uint[] memory Percentages = new uint[](4);
+        Percentages[0] = searchUint(candidates[CandidateNum].score, 4);
+        Percentages[1] =  searchUint(candidates[CandidateNum].score, 3);
+        Percentages[2] = searchUint(candidates[CandidateNum].score, 2);
+        Percentages[3] = searchUint(candidates[CandidateNum].score, 1);
+
+        ScoreGet = Percentages;
 
         return (MedianValue, Rank, ScoreGet);
     }
