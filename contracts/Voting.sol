@@ -318,7 +318,7 @@ contract Voting {
                     rank++;
                 }
                 else if (tempMedians[i] == tempMedians[j]) {
-                    if (ArrCalc(candidates[j].score) > ArrCalc(candidates[i].score)) {
+                    if ((ArrCalc(candidates[j].score)*(10**(numOfVoters - candidates[j].score.length))) > (ArrCalc(candidates[i].score))*(10**(numOfVoters - candidates[i].score.length))) {
                         rank++;
                     }
                 }
@@ -367,7 +367,7 @@ contract Voting {
                 }
                 
                 else if (medians[i] == medians[j]) {
-                    if ((ArrCalc(candidates[j].score)*(10**(numOfVoters - candidates[j].score.length))) < (ArrCalc(candidates[i].score))*(10**(numOfVoters - candidates[i].score.length))) {
+                    if ((ArrCalc(candidates[j].score)*(10**(numOfVoters - candidates[j].score.length))) > (ArrCalc(candidates[i].score))*(10**(numOfVoters - candidates[i].score.length))) {
                         rank++;
                     }
                 }
