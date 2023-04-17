@@ -15,7 +15,7 @@
  * --- 様々なパターンでの確認
  */
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.9;
 
 contract Voting {
 
