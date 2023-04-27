@@ -597,7 +597,7 @@ const GetWinner = async (event) => {
             </div>
           ) : (
             <div className='flex flex-col justify-center items-center mb-20 font-bold text-2xl gap-y-3'>
-              <div>Mumbaiに接続してください</div>
+              <div>Polygon zkEVMに接続してください</div>
             </div>)
         )}
       </div>

@@ -71,6 +71,11 @@ contract Voting {
         _;
     }
 
+    modifier onlyVoted() {
+        require(voteEnded, "Caller has not voted yet.");
+        _;
+    }
+
 /*
     function giveRight(address addr) public onlyOwner {
         Voter storage receiver = voters[addr];
@@ -294,6 +299,8 @@ contract Voting {
 
     /// @dev 全体の結果を見る
     function getResults() public view returns (string[] memory names, uint[] memory medians, uint[] memory ranks) {
+        ///@dev 必要であれば、投票終了者のみ見られるようにする
+        /// function getResults() public onlyVoted view returns (string[] memory names, uint[] memory medians, uint[] memory ranks) {
         uint[] memory tempMedians = new uint[](candidates.length);
         uint[] memory tempRanks = new uint[](candidates.length);
         names = new string[](candidates.length);
@@ -334,7 +341,7 @@ contract Voting {
         ranks = tempRanks;
     }
 
-    /// @dev 優勝者を返す
+    /// @dev 優勝者を返す。必要ならonlyVoted入れる。
     function getWinner() public view returns (string memory winnerName) {
         (,, uint[] memory tempRanks) = getResults();
         require(searchIndexUint(tempRanks, 1) != tempRanks.length, "We cannot determine the winner due to too few votes or too many abstentions.");
@@ -343,7 +350,7 @@ contract Voting {
     }
 
 
-    /// @dev 候補者名を入れると、その人の中央値と順位が返される
+    /// @dev 候補者名を入れると、その人の中央値と順位が返される。必要ならonlyVoted入れる
     function getIndividualResults(string memory CandidateName) public view returns (string memory MedianValue, uint Rank, uint[] memory ScoreGet) {
         
         uint[] memory medians = new uint[](candidates.length);
