@@ -6,16 +6,13 @@
  * - 実際にテストとして動かしてみるのにgiveRights functionは邪魔なのでコメントアウトしています
  * - 得た棄権以外の票数が、特定の値以下の場合は順位を10000位とする
  *
- * - <4/16更新>
- * - 個人の結果を、パーセンテージで表す
- * - [1,2]なら1の割合は50%。3は0%など
+ * - <4/27更新>
+ * - 票数が多くなった時も結果が返るようにした
  * 
- * - <残りやること>
- * --- uintとintを揃える。型がぐちゃぐちゃ(searchとか特に)
- * --- 様々なパターンでの確認
  */
 
 pragma solidity ^0.8.9;
+
 
 contract Voting {
 
@@ -58,9 +55,10 @@ contract Voting {
             candidates.push(Candidate(candidateNames[i], new uint[](0)));
 
             /// @dev 候補者の名前に被りがあってはならない
-            for(uint j = i + 1; j < candidateNames.length; j++) {
+            /*for(uint j = i + 1; j < candidateNames.length; j++) {
                 require(!compareStrings(candidateNames[i], candidateNames[j]), "Each candidate's name must be different");
             }
+            */
             
         }
     }
@@ -72,7 +70,8 @@ contract Voting {
     }
 
     modifier onlyVoted() {
-        require(voteEnded, "Caller has not voted yet.");
+        Voter storage sender = voters[msg.sender];
+        require(sender.voted == true, "Caller has not voted yet.");
         _;
     }
 
@@ -124,6 +123,7 @@ contract Voting {
         return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
     }
 
+
     /* 
      * @dev 
      * - 投票
@@ -138,6 +138,8 @@ contract Voting {
         Voter storage sender = voters[msg.sender];
         require(!sender.voted, "Already voted.");
         require(_scores.length == candidates.length, "Invalid number of scores.");
+
+
         for (uint i = 0; i < _scores.length; i++) {
             require((_scores[i] >= 1 && _scores[i] <= 4) || _scores[i] == 100, "The point must be between 1 and 4. If you want to abstain, enter 100.");
             if(candidates[i].score.length == 0){
@@ -270,37 +272,66 @@ contract Voting {
         str = string(bstr);
     }
 
-    function ArrCalc(uint[] memory Array) public pure returns (uint) {
-        uint result = 0;
-        if (Array.length % 2 == 0) {
-            uint middle = Array.length/2 - 1;
-            for(uint i = 0; i < Array.length; i++) {
-                if (i <= middle) {
-                    result += Array[i] * (10 ** ((Array.length - 1) - ((middle - i) * 2)));
-                }
-                else{
-                    result += Array[i] * (10 ** ((Array.length - 2) - ((i - middle - 1) * 2)));
-                }
-            }
-        } else {
-            uint middle = (Array.length - 1) / 2;
-            for(uint i = 0; i < Array.length; i++) {
-                if (i < middle) {
-                    result += Array[i] * (10 ** ((Array.length - 1) - ((middle - i - 1) * 2) - 1 ));
-                }
-                else{
-                    result += Array[i] * (10 ** (Array.length - ((i - middle) * 2) - 1 ));
-                }
+    function string2Uint(string memory s) public pure returns (uint) {
+        bytes memory b = bytes(s);
+        uint256 result = 0;
+        for (uint256 i = 0; i < b.length; i++) {
+            uint256 c = uint256(uint8(b[i]));
+            if (c >= 48 && c <= 57) {
+                result = result * 10 + (c - 48);
             }
         }
         return result;
     }
 
+    /// @dev 文字列を連結する
+    function concatenateStrings(string memory a, string memory b) public pure returns (string memory) {
+        return string(abi.encodePacked(a, b));
+    }
+
+    function deleteElement(uint[] memory myArray, uint n) public pure returns (uint[] memory newArray) {
+        require(myArray.length > n, "Invalid index");
+
+        // Create a new array with length - 1
+        newArray = new uint[](myArray.length - 1);
+
+        // Copy elements to the new array, excluding the deleted element
+        for (uint i = 0; i < n; i++) {
+            newArray[i] = myArray[i];
+        }
+        for (uint i = n + 1; i < myArray.length; i++) {
+            newArray[i - 1] = myArray[i];
+        }
+
+        return newArray;
+    }
+
+
+
+
+    function ArrCalc(uint[] memory Array) public pure returns (string memory) {
+        ///uint result = 0;
+        string memory resNum = '';
+        while (Array.length > 0) {
+            if (Array.length % 2 == 0) {
+                uint middle = Array.length/2 - 1;
+                string memory tempStr = uint2str(Array[middle]);
+                resNum = concatenateStrings(resNum,tempStr);
+                Array = deleteElement(Array, middle);
+            }
+            else {
+                uint middle = (Array.length - 1) / 2;
+                string memory tempStr = uint2str(Array[middle]);
+                resNum = concatenateStrings(resNum,tempStr);
+                Array = deleteElement(Array, middle);
+            }
+        }
+        return resNum;
+    }
+
 
     /// @dev 全体の結果を見る
-    function getResults() public view returns (string[] memory names, uint[] memory medians, uint[] memory ranks) {
-        ///@dev 必要であれば、投票終了者のみ見られるようにする
-        /// function getResults() public onlyVoted view returns (string[] memory names, uint[] memory medians, uint[] memory ranks) {
+    function getResults() public onlyVoted view returns (string[] memory names, uint[] memory medians, uint[] memory ranks) {
         uint[] memory tempMedians = new uint[](candidates.length);
         uint[] memory tempRanks = new uint[](candidates.length);
         names = new string[](candidates.length);
@@ -325,7 +356,24 @@ contract Voting {
                     rank++;
                 }
                 else if (tempMedians[i] == tempMedians[j]) {
-                    if ((ArrCalc(candidates[j].score)*(10**(numOfVoters - candidates[j].score.length))) > (ArrCalc(candidates[i].score))*(10**(numOfVoters - candidates[i].score.length))) {
+                    string memory rev_j = ArrCalc(candidates[j].score);
+                    string memory rev_i = ArrCalc(candidates[i].score);
+
+                    uint count_i = numOfVoters - candidates[i].score.length;
+                    uint count_j = numOfVoters - candidates[j].score.length;
+
+                    while(count_i > 0) {
+                        rev_i = concatenateStrings(rev_i, '0');
+                        count_i -= 1;
+                    }
+                    while(count_j > 0) {
+                        rev_j = concatenateStrings(rev_j, '0');
+                        count_j -= 1;
+                    }
+
+                    uint revNum_j = string2Uint(rev_j);
+                    uint revNum_i = string2Uint(rev_i);
+                    if (revNum_j > revNum_i) {
                         rank++;
                     }
                 }
@@ -341,8 +389,8 @@ contract Voting {
         ranks = tempRanks;
     }
 
-    /// @dev 優勝者を返す。必要ならonlyVoted入れる。
-    function getWinner() public view returns (string memory winnerName) {
+    /// @dev 優勝者を返す
+    function getWinner() public onlyVoted view returns (string memory winnerName) {
         (,, uint[] memory tempRanks) = getResults();
         require(searchIndexUint(tempRanks, 1) != tempRanks.length, "We cannot determine the winner due to too few votes or too many abstentions.");
         uint winner = uint(searchIndexUint(tempRanks, 1));
@@ -350,8 +398,8 @@ contract Voting {
     }
 
 
-    /// @dev 候補者名を入れると、その人の中央値と順位が返される。必要ならonlyVoted入れる
-    function getIndividualResults(string memory CandidateName) public view returns (string memory MedianValue, uint Rank, uint[] memory ScoreGet) {
+    /// @dev 候補者名を入れると、その人の中央値と順位が返される
+    function getIndividualResults(string memory CandidateName) public onlyVoted view returns (string memory MedianValue, uint Rank, uint[] memory ScoreGet) {
         
         uint[] memory medians = new uint[](candidates.length);
         //uint minScoreLength = numOfVoters * 3 / 10;
@@ -374,7 +422,19 @@ contract Voting {
                 }
                 
                 else if (medians[i] == medians[j]) {
-                    if ((ArrCalc(candidates[j].score)*(10**(numOfVoters - candidates[j].score.length))) > (ArrCalc(candidates[i].score))*(10**(numOfVoters - candidates[i].score.length))) {
+                    string memory rev_j = ArrCalc(candidates[j].score);
+                    string memory rev_i = ArrCalc(candidates[i].score);
+
+                    for (uint k = 0; k < (numOfVoters - candidates[i].score.length); k++) {
+                        rev_i = concatenateStrings(rev_i, '0');
+                    }
+                    for (uint l = 0; l < (numOfVoters - candidates[j].score.length); l++) {
+                        rev_j = concatenateStrings(rev_j, '0');
+                    }
+
+                    uint revNum_j = string2Uint(rev_j);
+                    uint revNum_i = string2Uint(rev_i);
+                    if (revNum_j > revNum_i) {
                         rank++;
                     }
                 }
@@ -400,7 +460,7 @@ contract Voting {
         //4点の割合
         uint[] memory Percentages = new uint[](4);
         Percentages[0] = searchUint(candidates[CandidateNum].score, 4);
-        Percentages[1] = searchUint(candidates[CandidateNum].score, 3);
+        Percentages[1] =  searchUint(candidates[CandidateNum].score, 3);
         Percentages[2] = searchUint(candidates[CandidateNum].score, 2);
         Percentages[3] = searchUint(candidates[CandidateNum].score, 1);
 

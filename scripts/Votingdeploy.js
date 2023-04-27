@@ -8,7 +8,7 @@ const main = async () => {
     voting = await Voting.deploy(["Alice", "Bob", "Chris"]);
     await voting.deployed();
 
-    console.log(`Contract deployed to: https://testnet-zkevm.polygonscan.com/address/${voting.address}`);
+    console.log(`Contract deployed to: https://mumbai.polygonscan.com/address/${voting.address}`);
 
     //voteする
     let tx = await voting.vote([100,100,100]);

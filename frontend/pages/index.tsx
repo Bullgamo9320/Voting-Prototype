@@ -22,7 +22,7 @@ export default function Home() {
   const [voterAddress, setVoterAddress] = useState('');
   const [voterScores, setVoterScores] = useState('');
   const [VoteEnded, setVoteEnded] = useState(false);
-  const [Vote, setVote] = useState([0,0,0]);
+  const [Vote, setVote] = useState([100,100,100]);
   const [tempvote, setTempvote] = useState<number[]>([]);
   const [activeButtonIndex1, setActiveButtonIndex1] = useState(-1);
   const [activeButtonIndex2, setActiveButtonIndex2] = useState(-1);
@@ -109,7 +109,7 @@ const checkAccountChanged = () => {
   setVoterScores('');
   setGetVoterScores('');
   setVoteEnded(false);
-  setTempvote([0,0,0]);
+  setTempvote([100,100,100]);
   setVote([]);
   setActiveButtonIndex1(-1);
   setActiveButtonIndex2(-1);
