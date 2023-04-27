@@ -308,7 +308,7 @@ contract Voting {
 
 
 
-
+    /*
     function ArrCalc(uint[] memory Array) public pure returns (string memory) {
         ///uint result = 0;
         string memory resNum = '';
@@ -328,6 +328,65 @@ contract Voting {
         }
         return resNum;
     }
+    */
+
+    function ArrCalc(uint[] memory Arr1, uint[] memory Arr2) public pure returns (bool) {
+        uint small;
+        
+        if (Arr1.length <= Arr2.length) {
+            small = Arr1.length;
+        }
+        else {
+            small = Arr2.length;
+        }
+
+        while (small > 0) {
+            uint middle1;
+            uint middle2;
+            
+            if (Arr1.length % 2 == 0) {
+                middle1 = Arr1.length / 2 - 1;
+            }
+            else {
+                middle1 = (Arr1.length - 1) / 2;
+            }
+            
+            if (Arr2.length % 2 == 0) {
+                middle2 = Arr2.length / 2 - 1;
+            }
+            else {
+                middle2 = (Arr2.length - 1) / 2;
+            }
+
+            if (small == 1 && Arr1[middle1] == Arr2[middle2]) {
+                if (Arr1.length < Arr2.length) {
+                    return false;
+                }
+                else if (Arr1.length >= Arr2.length) {
+                    return true;
+                }
+            }
+            else {
+                if (Arr1[middle1] < Arr2[middle2]) {
+                    return false;
+                }
+                else if (Arr1[middle1] > Arr2[middle2]) {
+                    return true;
+                }
+                else {
+                    Arr1 = deleteElement(Arr1, middle1);
+                    Arr2 = deleteElement(Arr2, middle2);
+                }
+            }
+            small--;
+        }
+        
+        // 明示的な戻り値を追加
+        return false; // または適切なデフォルト値を返す
+    }
+
+
+
 
 
     /// @dev 全体の結果を見る
@@ -356,24 +415,7 @@ contract Voting {
                     rank++;
                 }
                 else if (tempMedians[i] == tempMedians[j]) {
-                    string memory rev_j = ArrCalc(candidates[j].score);
-                    string memory rev_i = ArrCalc(candidates[i].score);
-
-                    uint count_i = numOfVoters - candidates[i].score.length;
-                    uint count_j = numOfVoters - candidates[j].score.length;
-
-                    while(count_i > 0) {
-                        rev_i = concatenateStrings(rev_i, '0');
-                        count_i -= 1;
-                    }
-                    while(count_j > 0) {
-                        rev_j = concatenateStrings(rev_j, '0');
-                        count_j -= 1;
-                    }
-
-                    uint revNum_j = string2Uint(rev_j);
-                    uint revNum_i = string2Uint(rev_i);
-                    if (revNum_j > revNum_i) {
+                    if(ArrCalc(candidates[i].score, candidates[j].score) == false){
                         rank++;
                     }
                 }
@@ -422,19 +464,7 @@ contract Voting {
                 }
                 
                 else if (medians[i] == medians[j]) {
-                    string memory rev_j = ArrCalc(candidates[j].score);
-                    string memory rev_i = ArrCalc(candidates[i].score);
-
-                    for (uint k = 0; k < (numOfVoters - candidates[i].score.length); k++) {
-                        rev_i = concatenateStrings(rev_i, '0');
-                    }
-                    for (uint l = 0; l < (numOfVoters - candidates[j].score.length); l++) {
-                        rev_j = concatenateStrings(rev_j, '0');
-                    }
-
-                    uint revNum_j = string2Uint(rev_j);
-                    uint revNum_i = string2Uint(rev_i);
-                    if (revNum_j > revNum_i) {
+                    if(ArrCalc(candidates[i].score, candidates[j].score) == false){
                         rank++;
                     }
                 }
