@@ -390,7 +390,7 @@ contract Voting {
 
 
     /// @dev 全体の結果を見る
-    function getResults() public onlyVoted view returns (string[] memory names, uint[] memory medians, uint[] memory ranks) {
+    function getResults() public view returns (string[] memory names, uint[] memory medians, uint[] memory ranks) {
         uint[] memory tempMedians = new uint[](candidates.length);
         uint[] memory tempRanks = new uint[](candidates.length);
         names = new string[](candidates.length);
