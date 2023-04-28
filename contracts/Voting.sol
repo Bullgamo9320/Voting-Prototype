@@ -433,6 +433,7 @@ contract Voting {
 
     /// @dev 優勝者を返す
     function getWinner() public onlyVoted view returns (string memory winnerName) {
+        /// require(voteEnded, "This vote has not ended.");
         (,, uint[] memory tempRanks) = getResults();
         require(searchIndexUint(tempRanks, 1) != tempRanks.length, "We cannot determine the winner due to too few votes or too many abstentions.");
         uint winner = uint(searchIndexUint(tempRanks, 1));
