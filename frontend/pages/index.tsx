@@ -22,11 +22,12 @@ export default function Home() {
   const [voterAddress, setVoterAddress] = useState('');
   const [voterScores, setVoterScores] = useState('');
   const [VoteEnded, setVoteEnded] = useState(false);
-  const [Vote, setVote] = useState([100,100,100]);
+  const [Vote, setVote] = useState([100,100,100,100]);//changehere
   const [tempvote, setTempvote] = useState<number[]>([]);
   const [activeButtonIndex1, setActiveButtonIndex1] = useState(-1);
   const [activeButtonIndex2, setActiveButtonIndex2] = useState(-1);
   const [activeButtonIndex3, setActiveButtonIndex3] = useState(-1);
+  const [activeButtonIndex4, setActiveButtonIndex4] = useState(-1);//changehere
   const mumbaiId = "0x13881";
   const zeroAddress = "0x0000000000000000000000000000000000000000";
 
@@ -109,11 +110,12 @@ const checkAccountChanged = () => {
   setVoterScores('');
   setGetVoterScores('');
   setVoteEnded(false);
-  setTempvote([100,100,100]);
+  setTempvote([100,100,100,100]);//changehere
   setVote([]);
   setActiveButtonIndex1(-1);
   setActiveButtonIndex2(-1);
   setActiveButtonIndex3(-1);
+  setActiveButtonIndex4(-1);//changehere
   setCandidate('');
 }
 
@@ -166,7 +168,7 @@ const IndividualLive = async (event) => {
   const signer = provider.getSigner();
   const votingContract = new ethers.Contract(VotingAddress, Voting.abi, signer);
 
-  if (candidate == "Alice" || candidate == "Bob" || candidate =="Chris"){
+  if (candidate == "Alice" || candidate == "Bob" || candidate =="Chris" || candidate == "David"){ //changehere
     const individualResult = await votingContract.getIndividualResults(candidate);
     setIndividualResult(individualResult);
   }
@@ -199,6 +201,13 @@ const handleButtonClick3 = (value: number, index: number, event: React.MouseEven
   setTempvote(newTempvote);
   setActiveButtonIndex3(value);
 };
+const handleButtonClick4 = (value: number, index: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  event.preventDefault();
+  const newTempvote = [...tempvote];
+  newTempvote.splice(index, 1, value);
+  setTempvote(newTempvote);
+  setActiveButtonIndex4(value);
+};//changehere
 
 const voting = async (event) => {
   event.preventDefault();
@@ -346,6 +355,11 @@ const GetWinner = async (event) => {
                         <span className="flex flex-col items-left font-semibold">
                           Chris:{`${voterScores[2].toString() === "1" ? "やめた方がいい" : voterScores[2].toString() === "2" ? "まあいいんじゃない" : voterScores[2].toString() === "3" ? "興味あり" : voterScores[2].toString() === "4" ? "大好き" : voterScores[2].toString() === "100" ? "棄権" : ""}`}
                         </span>
+                        <span className="flex flex-col items-left font-semibold">
+                          David:{`${voterScores[3].toString() === "1" ? "やめた方がいい" : voterScores[3].toString() === "2" ? "まあいいんじゃない" : voterScores[3].toString() === "3" ? "興味あり" : voterScores[3].toString() === "4" ? "大好き" : voterScores[3].toString() === "100" ? "棄権" : ""}`}
+                        </span>
+                        {//changehere
+                        }
                       </div>
                     ) : (
                       <div>
@@ -388,6 +402,11 @@ const GetWinner = async (event) => {
                     <span className="flex flex-col items-left font-semibold">
                       　　　　　　　　　Chris:{`${getVoterScores[2].toString() === "1" ? "やめた方がいい" : getVoterScores[2].toString() === "2" ? "まあいいんじゃない" : getVoterScores[2].toString() === "3" ? "興味あり" : getVoterScores[2].toString() === "4" ? "大好き" : getVoterScores[2].toString() === "100" ? "棄権" : ""}`}
                     </span>
+                    <span className="flex flex-col items-left font-semibold">
+                      　　　　　　　　　David:{`${getVoterScores[3].toString() === "1" ? "やめた方がいい" : getVoterScores[3].toString() === "2" ? "まあいいんじゃない" : getVoterScores[3].toString() === "3" ? "興味あり" : getVoterScores[3].toString() === "4" ? "大好き" : getVoterScores[3].toString() === "100" ? "棄権" : ""}`}
+                    </span>
+                    {//changehere
+                    }
                   </div>
                 ) : ( 
                   <span className="flex flex-col items-left font-semibold">
@@ -511,6 +530,46 @@ const GetWinner = async (event) => {
                     </div>      
                   </div>
                 </form>
+                <form className="flex pl-1 pr-1 py-1 mb-1 bg-white border border-gray-400">
+                  <div className= "w-full flex justify-between flex-col">
+                    {// changehere
+                    }
+                    <span className="pb-4">David：〇〇党。こんにちは。私の名前はDavidです。</span>
+                    <div className= "w-full flex justify-between" >
+                      <button
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex4 === 4 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
+                        onClick={(event) => handleButtonClick4(4, 3,event)}
+                      >
+                        大好き
+                      </button>
+                      <button
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex4 === 3 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
+                        onClick={(event) => handleButtonClick4(3, 3,event)}
+                      >
+                        興味あり
+                      </button>
+                      <button
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex4 === 2 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
+                        onClick={(event) => handleButtonClick4(2, 3,event)}
+                      >
+                        まあいいんじゃない
+                      </button>
+                      <button
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex4 === 1 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
+                        onClick={(event) => handleButtonClick4(1, 3,event)}
+                      >
+                        やめた方がいい
+                      </button>
+                      <button
+                        className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex4 === 100 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
+                        onClick={(event) => handleButtonClick4(100, 3,event)}
+                      >
+                        棄権する
+                      </button>
+                    </div>      
+                  </div>
+            
+                </form>
                 <div className="flex justify-center py-5">
                   <button
                     className="items-center w-2/12 bg-white border-red-500 hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-2 border border-red-500 hover:border-transparent rounded"
@@ -538,6 +597,11 @@ const GetWinner = async (event) => {
                       <span className="flex flex-col items-left font-semibold">
                         Name: {result.names[2].toString()}, Median: {result.medians[2].toString()}, Rank: {result.ranks[2].toString()}{Number(result.ranks[2]) === 1 ? 'st' : Number(result.ranks[2]) === 2 ? 'nd' : Number(result.ranks[2]) === 3 ? 'rd' : 'th'}
                       </span>
+                      <span className="flex flex-col items-left font-semibold">
+                        Name: {result.names[3].toString()}, Median: {result.medians[3].toString()}, Rank: {result.ranks[3].toString()}{Number(result.ranks[3]) === 1 ? 'st' : Number(result.ranks[3]) === 2 ? 'nd' : Number(result.ranks[3]) === 3 ? 'rd' : 'th'}
+                      </span>
+                      {// changehere
+                      }
                   </div>
                 ) : (<></>)}
 
@@ -561,7 +625,7 @@ const GetWinner = async (event) => {
                       <></>
                     ) : (
                     <div>
-                      {candidate === "Alice" || candidate === "Bob" || candidate === "Chris" ? (
+                      {candidate === "Alice" || candidate === "Bob" || candidate === "Chris" || candidate === "David" ? ( //changehere
                         <div>
                           <span className="flex flex-col mt-2 mb-5 items-left font-semibold">
                             Median: {individualResult.MedianValue.toString()}

@@ -11,7 +11,6 @@ module.exports = {
     mumbai: {
       url:`https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
       accounts: [process.env.PRIVATE_KEY]
-      //gasLimit: 3000000 ガスリミットの設定
     },
   },
   etherscan: {
