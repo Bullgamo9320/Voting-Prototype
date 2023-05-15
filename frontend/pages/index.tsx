@@ -23,7 +23,7 @@ export default function Home() {
   const [voterScores, setVoterScores] = useState('');
   const [VoteEnded, setVoteEnded] = useState(false);
   const [Vote, setVote] = useState([100,100,100,100]);//changehere
-  const [tempvote, setTempvote] = useState<number[]>([]);
+  const [tempvote, setTempvote] = useState([100,100,100,100]);//changehere
   const [activeButtonIndex1, setActiveButtonIndex1] = useState(-1);
   const [activeButtonIndex2, setActiveButtonIndex2] = useState(-1);
   const [activeButtonIndex3, setActiveButtonIndex3] = useState(-1);
@@ -347,16 +347,16 @@ const GetWinner = async (event) => {
                     {voterScores !== "no" && voterScores !== '' ? (
                       <div>
                         <span className="flex flex-col items-left font-semibold">
-                          Alice:{`${voterScores[0].toString() === "1" ? "やめた方がいい" : voterScores[0].toString() === "2" ? "まあいいんじゃない" : voterScores[0].toString() === "3" ? "興味あり" : voterScores[0].toString() === "4" ? "大好き" : voterScores[0].toString() === "100" ? "棄権" : ""}`}
+                          Alice:{`${voterScores[0].toString() === "1" ? "不可" : voterScores[0].toString() === "2" ? "可" : voterScores[0].toString() === "3" ? "良" : voterScores[0].toString() === "4" ? "優" : voterScores[0].toString() === "100" ? "棄権" : ""}`}
                         </span>
                         <span className="flex flex-col items-left font-semibold">
-                          Bob:{`${voterScores[1].toString() === "1" ? "やめた方がいい" : voterScores[1].toString() === "2" ? "まあいいんじゃない" : voterScores[1].toString() === "3" ? "興味あり" : voterScores[1].toString() === "4" ? "大好き" : voterScores[1].toString() === "100" ? "棄権" : ""}`}
+                          Bob:{`${voterScores[1].toString() === "1" ? "不可" : voterScores[1].toString() === "2" ? "可" : voterScores[1].toString() === "3" ? "良" : voterScores[1].toString() === "4" ? "優" : voterScores[1].toString() === "100" ? "棄権" : ""}`}
                         </span>
                         <span className="flex flex-col items-left font-semibold">
-                          Chris:{`${voterScores[2].toString() === "1" ? "やめた方がいい" : voterScores[2].toString() === "2" ? "まあいいんじゃない" : voterScores[2].toString() === "3" ? "興味あり" : voterScores[2].toString() === "4" ? "大好き" : voterScores[2].toString() === "100" ? "棄権" : ""}`}
+                          Chris:{`${voterScores[2].toString() === "1" ? "不可" : voterScores[2].toString() === "2" ? "可" : voterScores[2].toString() === "3" ? "良" : voterScores[2].toString() === "4" ? "優" : voterScores[2].toString() === "100" ? "棄権" : ""}`}
                         </span>
                         <span className="flex flex-col items-left font-semibold">
-                          David:{`${voterScores[3].toString() === "1" ? "やめた方がいい" : voterScores[3].toString() === "2" ? "まあいいんじゃない" : voterScores[3].toString() === "3" ? "興味あり" : voterScores[3].toString() === "4" ? "大好き" : voterScores[3].toString() === "100" ? "棄権" : ""}`}
+                          David:{`${voterScores[3].toString() === "1" ? "不可" : voterScores[3].toString() === "2" ? "可" : voterScores[3].toString() === "3" ? "良" : voterScores[3].toString() === "4" ? "優" : voterScores[3].toString() === "100" ? "棄権" : ""}`}
                         </span>
                         {//changehere
                         }
@@ -394,16 +394,16 @@ const GetWinner = async (event) => {
                 {getVoterScores.length > 0 ? (
                   <div>
                     <span className="flex flex-col items-left font-semibold">
-                      あなたの投票結果：Alice:{`${getVoterScores[0].toString() === "1" ? "やめた方がいい" : getVoterScores[0].toString() === "2" ? "まあいいんじゃない" : getVoterScores[0].toString() === "3" ? "興味あり" : getVoterScores[0].toString() === "4" ? "大好き" : getVoterScores[0].toString() === "100" ? "棄権" : ""}`}
+                      あなたの投票結果：Alice:{`${getVoterScores[0].toString() === "1" ? "不可" : getVoterScores[0].toString() === "2" ? "可" : getVoterScores[0].toString() === "3" ? "良" : getVoterScores[0].toString() === "4" ? "優" : getVoterScores[0].toString() === "100" ? "棄権" : ""}`}
                     </span>
                     <span className="flex flex-col items-left font-semibold">
-                      　　　　　　　　　Bob:{getVoterScores[1].toString() === "1" ? "やめた方がいい" : getVoterScores[1].toString() === "2" ? "まあいいんじゃない" : getVoterScores[1].toString() === "3" ? "興味あり" : getVoterScores[1].toString() === "4" ? "大好き" : getVoterScores[1].toString() === "100" ? "棄権" : ""}
+                      　　　　　　　　　Bob:{getVoterScores[1].toString() === "1" ? "不可" : getVoterScores[1].toString() === "2" ? "可" : getVoterScores[1].toString() === "3" ? "良" : getVoterScores[1].toString() === "4" ? "優" : getVoterScores[1].toString() === "100" ? "棄権" : ""}
                     </span>
                     <span className="flex flex-col items-left font-semibold">
-                      　　　　　　　　　Chris:{`${getVoterScores[2].toString() === "1" ? "やめた方がいい" : getVoterScores[2].toString() === "2" ? "まあいいんじゃない" : getVoterScores[2].toString() === "3" ? "興味あり" : getVoterScores[2].toString() === "4" ? "大好き" : getVoterScores[2].toString() === "100" ? "棄権" : ""}`}
+                      　　　　　　　　　Chris:{`${getVoterScores[2].toString() === "1" ? "不可" : getVoterScores[2].toString() === "2" ? "可" : getVoterScores[2].toString() === "3" ? "良" : getVoterScores[2].toString() === "4" ? "優" : getVoterScores[2].toString() === "100" ? "棄権" : ""}`}
                     </span>
                     <span className="flex flex-col items-left font-semibold">
-                      　　　　　　　　　David:{`${getVoterScores[3].toString() === "1" ? "やめた方がいい" : getVoterScores[3].toString() === "2" ? "まあいいんじゃない" : getVoterScores[3].toString() === "3" ? "興味あり" : getVoterScores[3].toString() === "4" ? "大好き" : getVoterScores[3].toString() === "100" ? "棄権" : ""}`}
+                      　　　　　　　　　David:{`${getVoterScores[3].toString() === "1" ? "不可" : getVoterScores[3].toString() === "2" ? "可" : getVoterScores[3].toString() === "3" ? "良" : getVoterScores[3].toString() === "4" ? "優" : getVoterScores[3].toString() === "100" ? "棄権" : ""}`}
                     </span>
                     {//changehere
                     }
@@ -425,25 +425,25 @@ const GetWinner = async (event) => {
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex1 === 4 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick1(4, 0,event)}
                       >
-                        大好き
+                        優
                       </button>
                       <button
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex1 === 3 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick1(3, 0,event)}
                       >
-                        興味あり
+                        良
                       </button>
                       <button
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex1 === 2 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick1(2, 0,event)}
                       >
-                        まあいいんじゃない
+                        可
                       </button>
                       <button
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex1 === 1 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick1(1, 0,event)}
                       >
-                        やめた方がいい
+                        不可
                       </button>
                       <button
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex1 === 100 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
@@ -463,25 +463,25 @@ const GetWinner = async (event) => {
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex2 === 4 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick2(4, 1,event)}
                       >
-                        大好き
+                        優
                       </button>
                       <button
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex2 === 3 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick2(3, 1, event)}
                       >
-                        興味あり
+                        良
                       </button>
                       <button
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex2 === 2 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick2(2, 1,event)}
                       >
-                        まあいいんじゃない
+                        可
                       </button>
                       <button
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex2 === 1 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick2(1, 1,event)}
                       >
-                        やめた方がいい
+                        不可
                       </button>
                       <button
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex2 === 100 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
@@ -501,25 +501,25 @@ const GetWinner = async (event) => {
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex3 === 4 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick3(4, 2,event)}
                       >
-                        大好き
+                        優
                       </button>
                       <button
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex3 === 3 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick3(3, 2,event)}
                       >
-                        興味あり
+                        良
                       </button>
                       <button
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex3 === 2 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick3(2, 2,event)}
                       >
-                        まあいいんじゃない
+                        可
                       </button>
                       <button
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex3 === 1 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick3(1, 2,event)}
                       >
-                        やめた方がいい
+                        不可
                       </button>
                       <button
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex3 === 100 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
@@ -540,25 +540,25 @@ const GetWinner = async (event) => {
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex4 === 4 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick4(4, 3,event)}
                       >
-                        大好き
+                        優
                       </button>
                       <button
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex4 === 3 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick4(3, 3,event)}
                       >
-                        興味あり
+                        良
                       </button>
                       <button
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex4 === 2 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick4(2, 3,event)}
                       >
-                        まあいいんじゃない
+                        可
                       </button>
                       <button
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex4 === 1 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
                         onClick={(event) => handleButtonClick4(1, 3,event)}
                       >
-                        やめた方がいい
+                        不可
                       </button>
                       <button
                         className={`w-2/12 border-blue-500 hover:bg-blue-500 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded ${activeButtonIndex4 === 100 ? "bg-blue-500 text-white" : "bg-white text-blue-700"}`}
@@ -581,6 +581,18 @@ const GetWinner = async (event) => {
 
               </>) : (
               <div>
+                <div className="flex flex-col mt-20 items-left text-2xl font-semibold">アンケート</div>
+                  <span className="flex flex-col items-left font-semibold">
+                    もしよろしければアンケートにもご協力ください。
+                  </span>
+                  <span className="flex flex-col mt-5 items-left font-semibold">
+                    <a
+                      href="https://docs.google.com/forms/d/e/1FAIpQLSc8Z8vPNJG2BmzK5o7nhQf4WjrT_vDQ3mPuJ924Ly2iZk8j-Q/viewform?usp=sf_link"
+                      className="text-red-500 hover:text-red-400"
+                    >
+                      アンケートリンクはこちら
+                    </a>
+                  </span>
                 <div className="flex flex-col mt-20 items-left text-2xl font-semibold">投票結果速報</div>
                 <button 
                   className="w-2/8 mx-2 my-3 bg-white border-blue-500 hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
@@ -661,7 +673,7 @@ const GetWinner = async (event) => {
             </div>
           ) : (
             <div className='flex flex-col justify-center items-center mb-20 font-bold text-2xl gap-y-3'>
-              <div>Polygon zkEVMに接続してください</div>
+              <div>Polygon Mumbaiに接続してください</div>
             </div>)
         )}
       </div>
