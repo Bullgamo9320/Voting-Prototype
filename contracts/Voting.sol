@@ -1,15 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-/*
- * - @dev
- * - とりあえず大まかには完成
- * - 実際にテストとして動かしてみるのにgiveRights functionは邪魔なのでコメントアウトしています
- * - 得た棄権以外の票数が、特定の値以下の場合は順位を10000位とする
- *
- * - <4/27更新>
- * - 票数が多くなった時も結果が返るようにした
- * 
- */
 
 pragma solidity ^0.8.9;
 
@@ -395,7 +385,7 @@ contract Voting {
         uint[] memory tempRanks = new uint[](candidates.length);
         names = new string[](candidates.length);
         //uint minScoreLength = numOfVoters * 3 / 10;
-        uint minScoreLength = 2;
+        uint minScoreLength = 4;
         
 
         for (uint i = 0; i < candidates.length; i++) {
@@ -446,7 +436,7 @@ contract Voting {
         
         uint[] memory medians = new uint[](candidates.length);
         //uint minScoreLength = numOfVoters * 3 / 10;
-        uint minScoreLength = 2;
+        uint minScoreLength = 4;
 
         for (uint i = 0; i < candidates.length; i++) {
             if (candidates[i].score.length < minScoreLength) {
